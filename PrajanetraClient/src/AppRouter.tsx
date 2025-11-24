@@ -6,7 +6,7 @@ import Index from "./pages/Index";
 import FileComplaint from "./pages/FileComplaint";
 import TrackComplaint from "./pages/TrackComplaint";
 import AllReports from "./pages/AllReports";
-import { PageLayout } from "./components/Pagelayout";
+
 
 export function AppRouter() {
     const location = useLocation();
@@ -19,33 +19,33 @@ export function AppRouter() {
                     <Route
                         path="/"
                         element={
-                            <PageLayout>
-                                <Index />
-                            </PageLayout>
+
+                            <Index />
+
                         }
                     />
                     <Route
                         path="/complaint"
                         element={
-                            <PageLayout>
-                                <FileComplaint />
-                            </PageLayout>
+
+                            <FileComplaint />
+
                         }
                     />
                     <Route
                         path="/track"
                         element={
-                            <PageLayout>
-                                <TrackComplaint />
-                            </PageLayout>
+
+                            <TrackComplaint />
+
                         }
                     />
                     <Route
                         path="/reports-feed"
                         element={
-                            <PageLayout>
-                                <AllReports />
-                            </PageLayout>
+
+                            <AllReports />
+
                         }
                     />
 
@@ -54,9 +54,9 @@ export function AppRouter() {
             <Route
               path="*"
               element={
-                <PageLayout>
+                
                   <NotFound />
-                </PageLayout>
+                
               }
             />
             */}
