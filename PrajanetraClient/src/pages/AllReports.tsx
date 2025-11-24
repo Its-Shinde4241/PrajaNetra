@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { motion } from "motion/react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -127,103 +128,162 @@ const AllReports = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="pt-24 pb-12 px-4">
+    <div className="min-h-screen relative">
+      {/* Static blur gradient background overlay - NO ANIMATIONS */}
+      <div className="absolute inset-0 bg-linear-to-br from-background/90 via-background/85 to-background/80" />
+
+      {/* Content - WITH ANIMATIONS */}
+      <motion.div
+        className="relative z-10 pt-24 pb-12 px-4 backdrop-blur-sm"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.5, ease: "easeInOut" }}
+      >
         <div className="container mx-auto max-w-2xl">
-          <div className="text-center mb-8 animate-fade-in">
-            <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-3">
+          {/* Header */}
+          <motion.div
+            className="text-center mb-8"
+            initial={{ y: 30, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: -20, opacity: 0 }}
+            transition={{
+              duration: 0.6,
+              ease: "easeOut",
+              delay: 0.1
+            }}
+          >
+            <motion.h1
+              className="text-3xl md:text-4xl font-bold text-foreground mb-3"
+              initial={{ scale: 0.95, y: 20, opacity: 0 }}
+              animate={{ scale: 1, y: 0, opacity: 1 }}
+              exit={{ scale: 0.95, y: -10, opacity: 0 }}
+              transition={{
+                duration: 0.5,
+                ease: "easeOut",
+                delay: 0.2
+              }}
+            >
               Community Reports
-            </h1>
-            <p className="text-muted-foreground">
+            </motion.h1>
+            <motion.p
+              className="text-muted-foreground"
+              initial={{ y: 15, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: -8, opacity: 0 }}
+              transition={{
+                duration: 0.5,
+                ease: "easeOut",
+                delay: 0.3
+              }}
+            >
               View and track all citizen complaints in real-time
-            </p>
-          </div>
+            </motion.p>
+          </motion.div>
 
           {/* Reports Feed */}
-          <div className="space-y-6">
+          <motion.div
+            className="space-y-6"
+            initial={{ y: 50, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: -30, opacity: 0 }}
+            transition={{
+              duration: 0.7,
+              ease: [0.25, 0.46, 0.45, 0.94],
+              delay: 0.4
+            }}
+          >
             {reports.map((report, index) => (
-              <Card
+              <motion.div
                 key={report.id}
-                className="border-border shadow-lg animate-fade-in overflow-hidden"
-                style={{ animationDelay: `${index * 0.1}s` }}
+                initial={{ y: 30, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                exit={{ y: -20, opacity: 0 }}
+                transition={{
+                  duration: 0.5,
+                  ease: "easeOut",
+                  delay: 0.5 + index * 0.1
+                }}
               >
-                {/* Header */}
-                <CardHeader className="pb-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <Avatar>
-                        <AvatarFallback className="bg-primary text-primary-foreground">
-                          {report.anonymousUser.split('#')[1].slice(0, 2)}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <p className="font-semibold text-foreground">{report.anonymousUser}</p>
-                        <p className="text-sm text-muted-foreground">{report.timestamp}</p>
+                <Card className="border-border/50 shadow-lg backdrop-blur-sm bg-card/95 overflow-hidden">
+                  {/* Header */}
+                  <CardHeader className="pb-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <Avatar>
+                          <AvatarFallback className="bg-primary text-primary-foreground">
+                            {report.anonymousUser.split('#')[1].slice(0, 2)}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <p className="font-semibold text-foreground">{report.anonymousUser}</p>
+                          <p className="text-sm text-muted-foreground">{report.timestamp}</p>
+                        </div>
                       </div>
+                      <Badge className={`${getStatusColor(report.status)} text-white`}>
+                        {report.status}
+                      </Badge>
                     </div>
-                    <Badge className={`${getStatusColor(report.status)} text-white`}>
-                      {report.status}
-                    </Badge>
-                  </div>
-                </CardHeader>
+                  </CardHeader>
 
-                {/* Image */}
-                <div className="relative w-full aspect-square overflow-hidden">
-                  <img
-                    src={report.image}
-                    alt="Report incident"
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-
-                {/* Content */}
-                <CardContent className="pt-4">
-                  {/* Actions */}
-                  <div className="flex items-center space-x-4 mb-3">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setSelectedReport(report)}
-                      className="text-foreground hover:text-primary"
-                    >
-                      <MessageCircle className="w-5 h-5 mr-1" />
-                      <span className="text-sm">{report.comments.length}</span>
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => {
-                        setSelectedReport(report);
-                        setShowTimeline(true);
-                      }}
-                      className="text-foreground hover:text-primary"
-                    >
-                      <Clock className="w-5 h-5 mr-1" />
-                      <span className="text-sm">Timeline</span>
-                    </Button>
+                  {/* Image */}
+                  <div className="relative w-full aspect-square overflow-hidden">
+                    <img
+                      src={report.image}
+                      alt="Report incident"
+                      className="w-full h-full object-cover rounded-lg"
+                    />
                   </div>
 
-                  {/* Details */}
-                  <div className="space-y-2">
-                    <div className="flex items-center text-sm text-muted-foreground">
-                      <Badge variant="outline" className="mr-2">{report.category}</Badge>
+                  {/* Content */}
+                  <CardContent className="pt-4">
+                    {/* Actions */}
+                    <div className="flex items-center space-x-4 mb-3">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setSelectedReport(report)}
+                        className="text-foreground hover:text-primary cursor-pointer"
+                      >
+                        <MessageCircle className="w-5 h-5 mr-1" />
+                        <span className="text-sm">{report.comments.length}</span>
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          setSelectedReport(report);
+                          setShowTimeline(true);
+                        }}
+                        className="text-foreground hover:text-primary cursor-pointer"
+                      >
+                        <Clock className="w-5 h-5 mr-1" />
+                        <span className="text-sm">Timeline</span>
+                      </Button>
                     </div>
-                    <div className="flex items-start space-x-2 text-sm">
-                      <MapPin className="w-4 h-4 text-muted-foreground mt-0.5" />
-                      <span className="text-muted-foreground">{report.location}</span>
+
+                    {/* Details */}
+                    <div className="space-y-2">
+                      <div className="flex items-center text-sm text-muted-foreground">
+                        <Badge variant="outline" className="mr-2">{report.category}</Badge>
+                      </div>
+                      <div className="flex items-start space-x-2 text-sm">
+                        <MapPin className="w-4 h-4 text-muted-foreground mt-0.5" />
+                        <span className="text-muted-foreground">{report.location}</span>
+                      </div>
+                      <p className="text-foreground">
+                        <span className="font-semibold">{report.anonymousUser}:</span>{" "}
+                        {report.description}
+                      </p>
+                      <p className="text-xs text-muted-foreground">ID: {report.id}</p>
                     </div>
-                    <p className="text-foreground">
-                      <span className="font-semibold">{report.anonymousUser}:</span>{" "}
-                      {report.description}
-                    </p>
-                    <p className="text-xs text-muted-foreground">ID: {report.id}</p>
-                  </div>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
-      </div>
+      </motion.div>
 
       {/* Comments Dialog */}
       <Dialog open={selectedReport !== null && !showTimeline} onOpenChange={() => setSelectedReport(null)}>
@@ -282,10 +342,12 @@ const AllReports = () => {
       </Dialog>
 
       {/* Timeline Dialog */}
-      <Dialog open={showTimeline && selectedReport !== null} onOpenChange={() => setShowTimeline(false)}>
+      <Dialog open={showTimeline && selectedReport !== null} onOpenChange={() => {
+        setShowTimeline(false)
+        setSelectedReport(null);
+      }}>
         <DialogContent
           from="right"
-          showCloseButton={true}
           className="sm:max-w-md"
         >
           <DialogHeader>

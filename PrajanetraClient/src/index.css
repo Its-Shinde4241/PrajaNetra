@@ -118,4 +118,86 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  /* Hide scrollbars but maintain scroll functionality */
+  * {
+    scrollbar-width: none;
+    /* Firefox */
+    -ms-overflow-style: none;
+    /* Internet Explorer 10+ */
+  }
+
+  *::-webkit-scrollbar {
+    display: none;
+    /* WebKit browsers (Chrome, Safari, Edge) */
+  }
+
+  /* Ensure smooth scrolling */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Smooth animations for page elements */
+  .animate-fade-in-up {
+    animation: fadeInUp 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px) scale(0.96);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  /* Ultra-smooth transitions for interactive elements */
+  button,
+  a,
+  [role="button"],
+  .transition-smooth {
+    transition: all 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    will-change: transform;
+  }
+
+  button:hover:not(:disabled),
+  a:hover,
+  [role="button"]:hover:not(:disabled),
+  .hover-lift:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.05);
+  }
+
+  button:active:not(:disabled),
+  a:active,
+  [role="button"]:active:not(:disabled),
+  .active-scale:active {
+    transform: translateY(0px) scale(0.97);
+    transition-duration: 0.1s;
+  }
+
+  /* Smooth focus states */
+  button:focus-visible,
+  a:focus-visible,
+  input:focus-visible,
+  textarea:focus-visible,
+  [tabindex]:focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+    transition: outline 0.2s ease;
+  }
+
+  /* GPU acceleration for smooth animations */
+  * {
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+  }
+
+  /* Smooth page transitions preparation */
+  body {
+    overflow-x: hidden;
+  }
 }
