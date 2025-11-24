@@ -6,7 +6,7 @@ const Hero = () => {
   return (
     <section className="relative min-h-screen flex items-center justify-center">
       {/* Overlay for Hero content readability */}
-      <div className="absolute inset-0 bg-gradient-to-b from-background/95 via-background/80 to-background/60" />
+      <div className="absolute inset-0 bg-linear-to-b from-background/95 via-background/80 to-background/60" />
 
       {/* Content */}
       <div className="container mx-auto px-4 py-20 relative z-10">
@@ -22,14 +22,14 @@ const Hero = () => {
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 mb-12">
-            <Link to="/file-complaint" className="hover-scale">
+            <Link to="/complaint" className="hover-scale">
               <Button size="lg" className="w-full sm:w-auto group">
                 <FileText className="w-5 h-5 mr-2" />
                 File a Complaint
                 <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
               </Button>
             </Link>
-            <Link to="/track-complaint" className="hover-scale">
+            <Link to="/track" className="hover-scale">
               <Button size="lg" variant="outline" className="w-full sm:w-auto">
                 <Search className="w-5 h-5 mr-2" />
                 Track Status

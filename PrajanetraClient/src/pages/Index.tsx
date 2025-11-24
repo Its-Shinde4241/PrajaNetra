@@ -5,18 +5,20 @@ import heroImage from "@/assets/hero-city.jpg";
 const Index = () => {
   return (
     <div className="relative min-h-screen">
-      {/* Fixed Background Image */}
-      <div className="fixed inset-0 z-0">
-        <img
-          src={heroImage}
-          alt="City skyline"
-          className="w-full h-full object-cover"
-        />
+      {/* Fixed Background Image - Better approach */}
+      <div
+        className="fixed inset-0 z-0 bg-cover bg-center bg-no-repeat"
+        style={{
+          backgroundImage: `url(${heroImage})`,
+          backgroundAttachment: 'fixed'
+        }}
+      >
+        {/* Optional: Add overlay for better text readability */}
+        <div className="absolute inset-0 bg-black/10" />
       </div>
 
       {/* Scrollable Content */}
       <div className="relative z-10">
-        {/* <Header /> */}
         <Hero />
         <Features />
 
