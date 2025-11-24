@@ -1,7 +1,7 @@
-package com.app.prajanetraserver.config;
+package com.app.prajanetraserver.Config;
 
 import com.app.prajanetraserver.Service.UserService;
-import com.app.prajanetraserver.utils.JwtAuthFilter;
+import com.app.prajanetraserver.Utils.JwtAuthFilter;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -31,22 +31,20 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**", "/api/auth/google/login", "/").permitAll()
-                        .anyRequest().authenticated()
-                )
+                        .requestMatchers("/api/auth/**", "/api/auth/google/login", "/", "/health/**")
+                        .permitAll()
+                        .anyRequest().authenticated())
                 .exceptionHandling(exp -> exp
                         .authenticationEntryPoint((request, response, authenticationException) -> {
                             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                            response.getWriter().write(authenticationException.getMessage() + " : Unauthorized access! Login First");
-                        })
-                )
+                            response.getWriter().write(
+                                    authenticationException.getMessage() + " : Unauthorized access! Login First");
+                        }))
                 .oauth2Login(auth -> auth
-                        .defaultSuccessUrl("/api/auth/oauth2/success", true)
-                )
+                        .defaultSuccessUrl("/api/auth/oauth2/success", true))
                 .logout(logout -> logout
                         .logoutUrl("/api/auth/logout")
-                        .logoutSuccessUrl("/")
-                )
+                        .logoutSuccessUrl("/"))
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);// disable http basic (optional)
 
         return http.build();

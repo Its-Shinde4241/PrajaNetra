@@ -1,4 +1,4 @@
-package com.app.prajanetraserver.model;
+package com.app.prajanetraserver.Model;
 
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;

@@ -1,4 +1,4 @@
-package com.app.prajanetraserver.utils;
+package com.app.prajanetraserver.Utils;
 
 
 import com.app.prajanetraserver.Service.JwtService;

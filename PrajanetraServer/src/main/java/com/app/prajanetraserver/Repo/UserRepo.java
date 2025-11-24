@@ -2,7 +2,7 @@ package com.app.prajanetraserver.Repo;
 
 
 
-import com.app.prajanetraserver.model.User;
+import com.app.prajanetraserver.Model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

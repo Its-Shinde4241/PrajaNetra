@@ -1,4 +1,4 @@
-package com.app.prajanetraserver.dto;
+package com.app.prajanetraserver.DTO;
 
 import java.time.LocalDateTime;
 

@@ -1,4 +1,4 @@
-package com.app.prajanetraserver.controller;
+package com.app.prajanetraserver.Controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
