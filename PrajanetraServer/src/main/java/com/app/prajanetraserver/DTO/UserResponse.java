@@ -1,6 +1,7 @@
 package com.app.prajanetraserver.DTO;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 public record UserResponse(
         String name,
@@ -9,6 +10,7 @@ public record UserResponse(
         String googleId,
         String loginMethod,
         LocalDateTime createdAt,
-        LocalDateTime updatedAt
+        LocalDateTime updatedAt,
+        Set<Role> roles
 ) {
 }

@@ -31,9 +31,11 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**", "/api/auth/google/login", "/", "/health/**")
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api/auth/**", "/api/auth/google/login", "/")
                         .permitAll()
-                        .anyRequest().authenticated())
+                        .anyRequest().authenticated()
+                )
                 .exceptionHandling(exp -> exp
                         .authenticationEntryPoint((request, response, authenticationException) -> {
                             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);

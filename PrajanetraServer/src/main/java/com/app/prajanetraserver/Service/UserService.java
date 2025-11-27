@@ -1,6 +1,7 @@
 package com.app.prajanetraserver.Service;
 
 
+import com.app.prajanetraserver.DTO.Role;
 import com.app.prajanetraserver.Repo.UserRepo;
 import com.app.prajanetraserver.DTO.UserResponse;
 import com.app.prajanetraserver.Model.MyUserDetails;
@@ -77,7 +78,8 @@ public class UserService implements UserDetailsService {
                 user.getGoogleId(),
                 user.getLoginMethod(),
                 user.getCreatedAt(),
-                user.getUpdatedAt()
+                user.getUpdatedAt(),
+                user.getRoles()
         );
     }
 }
