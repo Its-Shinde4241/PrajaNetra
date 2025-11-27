@@ -2,9 +2,9 @@ package com.app.prajanetraserver.Service;
 
 
 import com.app.prajanetraserver.Repo.UserRepo;
-import com.app.prajanetraserver.dto.UserResponse;
-import com.app.prajanetraserver.model.MyUserDetails;
-import com.app.prajanetraserver.model.User;
+import com.app.prajanetraserver.DTO.UserResponse;
+import com.app.prajanetraserver.Model.MyUserDetails;
+import com.app.prajanetraserver.Model.User;
 import jakarta.transaction.Transactional;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

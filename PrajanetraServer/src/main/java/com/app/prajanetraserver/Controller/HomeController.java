@@ -1,4 +1,4 @@
-package com.app.prajanetraserver.controller;
+package com.app.prajanetraserver.Controller;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;

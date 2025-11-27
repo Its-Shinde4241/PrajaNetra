@@ -1,11 +1,11 @@
-package com.app.prajanetraserver.controller;
+package com.app.prajanetraserver.Controller;
 
 import com.app.prajanetraserver.Service.JwtService;
 import com.app.prajanetraserver.Service.UserService;
-import com.app.prajanetraserver.dto.LoginRequest;
-import com.app.prajanetraserver.dto.RegisterRequest;
-import com.app.prajanetraserver.model.MyUserDetails;
-import com.app.prajanetraserver.model.User;
+import com.app.prajanetraserver.DTO.LoginRequest;
+import com.app.prajanetraserver.DTO.RegisterRequest;
+import com.app.prajanetraserver.Model.MyUserDetails;
+import com.app.prajanetraserver.Model.User;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
