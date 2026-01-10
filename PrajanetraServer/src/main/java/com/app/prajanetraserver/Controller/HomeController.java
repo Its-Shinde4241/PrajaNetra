@@ -9,6 +9,7 @@ public class HomeController {
 
     @GetMapping("/")
     public String home() {
+        System.out.println("home");
         return "STARTER API RUNNING ON!";
     }
 }

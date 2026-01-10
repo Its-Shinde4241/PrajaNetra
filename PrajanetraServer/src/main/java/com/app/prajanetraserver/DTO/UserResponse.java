@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.Set;
 
 public record UserResponse(
+        String userId,
         String name,
         String email,
         String profileImageUrl,

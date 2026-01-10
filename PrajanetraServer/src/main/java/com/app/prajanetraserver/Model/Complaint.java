@@ -14,7 +14,8 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-@Entity(name = "complaints")
+@Entity
+@Table(name = "complaints")
 public class Complaint {
     @Id
     @GeneratedValue
@@ -49,6 +50,9 @@ public class Complaint {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ComplaintStatus status = ComplaintStatus.SUBMITTED;
+
+    @OneToMany(mappedBy = "complaint", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comment> comments = new ArrayList<>();
 
     @Column(nullable = false)
     private LocalDateTime createdAt;

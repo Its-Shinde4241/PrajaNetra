@@ -43,6 +43,8 @@ public class UserService implements UserDetailsService {
         }
 
         User user = new User();
+        String userId = generateUserId();
+        user.setUserId(userId);
         user.setName(name);
         user.setEmail(email);
         String encodedPassword = passwordEncoder.encode(password);
@@ -58,12 +60,18 @@ public class UserService implements UserDetailsService {
         return userRepo.findByEmail(email);
     }
 
+    public Optional<User> finByUserId(String id) {
+        return userRepo.findUserByUserId((id));
+    }
+
     public User updateUser(User user) {
         return userRepo.save(user);
     }
 
     public User createOauthUser(User user) {
         user.setPassword(null);
+        String userId = generateUserId();
+        user.setUserId(userId);
         user.setLoginMethod("GOOGLE");
         user.setCreatedAt(LocalDateTime.now());
         user.setUpdatedAt(LocalDateTime.now());
@@ -72,6 +80,7 @@ public class UserService implements UserDetailsService {
 
     public UserResponse getUserResponse(User user) {
         return new UserResponse(
+                user.getUserId(),
                 user.getName(),
                 user.getEmail(),
                 user.getProfileImageUrl(),
@@ -81,5 +90,14 @@ public class UserService implements UserDetailsService {
                 user.getUpdatedAt(),
                 user.getRoles()
         );
+    }
+
+    public String generateUserId() {
+        String id;
+        do {
+            long timestamp = System.currentTimeMillis();
+            id = "MCP" + String.valueOf(timestamp).substring(5);
+        } while (userRepo.existsUserByUserId(id));
+        return id;
     }
 }

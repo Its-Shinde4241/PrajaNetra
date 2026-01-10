@@ -20,8 +20,12 @@ public class User {
     @GeneratedValue
     private UUID id;
 
+    @Column(unique = true, nullable = false)
+    private String userId;
+
     @Column(nullable = false)
     private String name;
+
 
     private String password;
 
@@ -48,6 +52,7 @@ public class User {
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false)
     private Set<Role> roles = new HashSet<>(Set.of(Role.USER));
+
 
     @PrePersist
     protected void onCreate() {
