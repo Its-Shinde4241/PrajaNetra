@@ -24,7 +24,6 @@ public class FileStorageService {
 
     private final OkHttpClient httpClient = new OkHttpClient();
     private final List<String> allowedExtensions = List.of("jpg", "jpeg", "png", "webp");
-    private final long maxFileSize = 5 * 1024 * 1024;
 
     public List<String> storeFiles(MultipartFile[] files) throws IOException {
         List<String> fileUrls = new ArrayList<>();
@@ -38,6 +37,7 @@ public class FileStorageService {
                 continue;
             }
 
+            long maxFileSize = 5 * 1024 * 1024;
             if (file.getSize() > maxFileSize) {
                 throw new IllegalArgumentException(
                         "File size exceeds maximum limit of 5MB: " + file.getOriginalFilename());

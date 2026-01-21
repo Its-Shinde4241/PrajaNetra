@@ -2,6 +2,7 @@ package com.app.prajanetraserver.Repo;
 
 import com.app.prajanetraserver.DTO.ComplaintStatus;
 import com.app.prajanetraserver.Model.Complaint;
+import com.app.prajanetraserver.Model.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -21,5 +22,7 @@ public interface ComplaintRepo extends JpaRepository<Complaint, UUID> {
 
     Page<Complaint> findByCategory(String category, Pageable pageable);
 
-    Page<Complaint> findByEmail(String email, Pageable pageable);
+    void deleteByComplaintId(String complaintId);
+
+    Page<Complaint> findComplaintsByUser(User user, Pageable pageable);
 }

@@ -96,7 +96,7 @@ public class UserService implements UserDetailsService {
         String id;
         do {
             long timestamp = System.currentTimeMillis();
-            id = "MCP" + String.valueOf(timestamp).substring(5);
+            id = "USR" + String.valueOf(timestamp).substring(5);
         } while (userRepo.existsUserByUserId(id));
         return id;
     }

@@ -12,9 +12,7 @@ import java.util.List;
 @AllArgsConstructor
 public class ComplaintResponse {
     private String complaintId;
-    private String name;
-    private String email;
-    private String phone;
+    private String userId;
     private String category;
     private String location;
     private String description;

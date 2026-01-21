@@ -78,7 +78,7 @@ public class CommentService {
         String id;
         do {
             long timestamp = System.currentTimeMillis();
-            id = "MCP" + String.valueOf(timestamp).substring(5);
+            id = "CMT" + String.valueOf(timestamp).substring(5);
         } while (commentRepo.existsCommentByCommentId((id)));
         return id;
     }

@@ -33,8 +33,8 @@ public class ComplaintController {
     private final ObjectMapper objectMapper;
 
     public ComplaintController(ComplaintService complaintService,
-            FileStorageService fileStorageService,
-            ObjectMapper objectMapper) {
+                               FileStorageService fileStorageService,
+                               ObjectMapper objectMapper) {
         this.complaintService = complaintService;
         this.fileStorageService = fileStorageService;
         this.objectMapper = objectMapper;
@@ -47,14 +47,8 @@ public class ComplaintController {
         try {
             CreateComplaintRequest request = objectMapper.readValue(dataJson, CreateComplaintRequest.class);
 
-            if (request.getName() == null || request.getName().trim().isEmpty()) {
+            if (request.getUserId() == null || request.getUserId().trim().isEmpty()) {
                 return ResponseEntity.badRequest().body(Map.of("message", "Name is required"));
-            }
-            if (request.getEmail() == null || request.getEmail().trim().isEmpty()) {
-                return ResponseEntity.badRequest().body(Map.of("message", "Email is required"));
-            }
-            if (request.getPhone() == null || request.getPhone().trim().isEmpty()) {
-                return ResponseEntity.badRequest().body(Map.of("message", "Phone is required"));
             }
             if (request.getCategory() == null || request.getCategory().trim().isEmpty()) {
                 return ResponseEntity.badRequest().body(Map.of("message", "Category is required"));
@@ -113,7 +107,7 @@ public class ComplaintController {
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(required = false) String status,
             @RequestParam(required = false) String category,
-            @RequestParam(required = false) String email,
+            @RequestParam(required = false) String userId,
             @RequestParam(defaultValue = "createdAt") String sortBy,
             @RequestParam(defaultValue = "DESC") String sortDirection) {
         try {
@@ -133,8 +127,8 @@ public class ComplaintController {
                 }
             } else if (category != null && !category.trim().isEmpty()) {
                 complaintsPage = complaintService.getComplaintsByCategory(category, pageable);
-            } else if (email != null && !email.trim().isEmpty()) {
-                complaintsPage = complaintService.getComplaintsByEmail(email, pageable);
+            } else if (userId != null && !userId.trim().isEmpty()) {
+                complaintsPage = complaintService.getComplaintsByUserId(userId, pageable);
             } else {
                 complaintsPage = complaintService.getAllComplaints(pageable);
             }
@@ -150,6 +144,7 @@ public class ComplaintController {
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("message", "Failed to retrieve complaints: " + e.getMessage()));
         }
@@ -178,6 +173,17 @@ public class ComplaintController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("message", "Failed to update status: " + e.getMessage()));
+        }
+    }
+
+    @DeleteMapping("/{complaintId}")
+    public ResponseEntity<?> deleteComplaint(@PathVariable String complaintId) {
+        try {
+            complaintService.deleteComplaint(complaintId);
+            return ResponseEntity.status(HttpStatus.OK).build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
 }

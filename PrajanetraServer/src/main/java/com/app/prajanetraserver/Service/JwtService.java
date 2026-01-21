@@ -2,13 +2,12 @@ package com.app.prajanetraserver.Service;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-import java.security.Key;
+import javax.crypto.SecretKey;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -27,11 +26,11 @@ public class JwtService {
                 .claims(claims)
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24))
-                .signWith(this.getSecretKey(), SignatureAlgorithm.HS256)
+                .signWith(this.getSecretKey())
                 .compact();
     }
 
-    private Key getSecretKey() {
+    private SecretKey getSecretKey() {
         byte[] keyBytes = this.secretKey.getBytes();
         return Keys.hmacShaKeyFor(keyBytes);
     }
@@ -48,10 +47,10 @@ public class JwtService {
     private Claims extractAllclaims(String token) {
         return Jwts
                 .parser()
-                .setSigningKey(this.getSecretKey())
+                .verifyWith(this.getSecretKey())
                 .build()
-                .parseClaimsJws(token)
-                .getBody();
+                .parseSignedClaims(token)
+                .getPayload();
     }
 
     public boolean validateToken(String token, UserDetails userDetails) {

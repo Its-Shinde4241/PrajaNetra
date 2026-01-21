@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import net.minidev.json.annotate.JsonIgnore;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -25,13 +26,7 @@ public class Complaint {
     private String complaintId;
 
     @Column(nullable = false)
-    private String name;
-
-    @Column(nullable = false)
-    private String email;
-
-    @Column(nullable = false)
-    private String phone;
+    private String title;
 
     @Column(nullable = false)
     private String category;
@@ -60,7 +55,10 @@ public class Complaint {
     @Column(nullable = false)
     private LocalDateTime updatedAt;
 
-    private UUID userId;
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     @PrePersist
     protected void onCreate() {

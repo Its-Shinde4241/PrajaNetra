@@ -1,12 +1,10 @@
 package com.app.prajanetraserver.Controller;
 
-import com.app.prajanetraserver.Service.JwtService;
-import com.app.prajanetraserver.Service.UserService;
-import com.app.prajanetraserver.DTO.LoginRequest;
-import com.app.prajanetraserver.DTO.RegisterRequest;
-import com.app.prajanetraserver.Model.MyUserDetails;
-import com.app.prajanetraserver.Model.User;
-import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -15,13 +13,21 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.io.IOException;
-import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
+import com.app.prajanetraserver.DTO.LoginRequest;
+import com.app.prajanetraserver.DTO.RegisterRequest;
+import com.app.prajanetraserver.Model.MyUserDetails;
+import com.app.prajanetraserver.Model.User;
+import com.app.prajanetraserver.Service.JwtService;
+import com.app.prajanetraserver.Service.UserService;
 
+import jakarta.servlet.http.HttpServletResponse;
 
 @RestController
 @CrossOrigin
@@ -31,27 +37,25 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final UserService userService;
     private final JwtService jwtService;
-    private final PasswordEncoder passwordEncoder;
 
     AuthController(UserService userService, JwtService jwtService, AuthenticationManager authenticationManager, PasswordEncoder passwordEncoder) {
         this.userService = userService;
         this.jwtService = jwtService;
         this.authenticationManager = authenticationManager;
-        this.passwordEncoder = passwordEncoder;
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
         System.out.println("Attempting to authenticate user: " + loginRequest.email());
         try {
-            Authentication authenticationRequest =
-                    new UsernamePasswordAuthenticationToken(
+            Authentication authenticationRequest
+                    = new UsernamePasswordAuthenticationToken(
                             loginRequest.email(),
                             loginRequest.password()
                     );
 
-            Authentication authenticationResponse =
-                    this.authenticationManager.authenticate(authenticationRequest);
+            Authentication authenticationResponse
+                    = this.authenticationManager.authenticate(authenticationRequest);
 
             MyUserDetails myUserDetails = (MyUserDetails) authenticationResponse.getPrincipal();
             User user = myUserDetails.getUser();
@@ -105,12 +109,10 @@ public class AuthController {
             String userProfileImageUrl = oAuth2User.getAttribute("picture");
             String googleId = oAuth2User.getAttribute("sub");
 
-
             User user = userService.findByEmail(email).orElseGet(() -> {
                 User newUser = new User();
                 newUser.setEmail(email);
                 newUser.setName(name);
-                newUser.setPassword(passwordEncoder.encode("123456"));
                 newUser.setGoogleId(googleId);
                 newUser.setProfileImageUrl(userProfileImageUrl);
                 return userService.createOauthUser(newUser);
