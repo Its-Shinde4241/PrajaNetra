@@ -4,7 +4,6 @@ import Hero from "@/components/Hero";
 const Index = () => {
   return (
     <div className="min-h-screen">
-      {/* Content - background is now handled in App.tsx */}
       <Hero />
       <Features />
 
@@ -13,10 +12,10 @@ const Index = () => {
         <div className="container mx-auto px-4">
           <div className="text-center">
             <p className="text-sm">
-              © 2025 Municipal Corporation. All rights reserved.
+              © 2026 Municipal Corporation. All rights reserved.
             </p>
             <p className="text-sm mt-2 opacity-80">
-              Making our city better, together.
+              Making city better, together.
             </p>
           </div>
         </div>

@@ -2,9 +2,7 @@ package com.app.prajanetraserver.Model;
 
 import com.app.prajanetraserver.DTO.ComplaintStatus;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import net.minidev.json.annotate.JsonIgnore;
 
 import java.time.LocalDateTime;
@@ -14,47 +12,57 @@ import java.util.UUID;
 
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
 @Entity
+@Getter
 @Table(name = "complaints")
 public class Complaint {
     @Id
     @GeneratedValue
     private UUID id;
 
+    @Setter
     @Column(unique = true, nullable = false)
     private String complaintId;
 
+    @Setter
     @Column(nullable = false)
     private String title;
 
+    @Setter
     @Column(nullable = false)
     private String category;
 
+    @Setter
     @Column(nullable = false)
     private String location;
 
+    @Setter
     @Column(length = 2000, nullable = false)
     private String description;
 
+    @Setter
     @ElementCollection
     @CollectionTable(name = "complaint_images", joinColumns = @JoinColumn(name = "complaint_id"))
     @Column(name = "image_url")
     private List<String> imageUrls = new ArrayList<>();
 
+    @OneToMany(mappedBy = "complaint", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comment> comments = new ArrayList<>();
+
+    @Setter
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ComplaintStatus status = ComplaintStatus.SUBMITTED;
 
-    @OneToMany(mappedBy = "complaint", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Comment> comments = new ArrayList<>();
-
+    @Setter
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
+    @Setter
     @Column(nullable = false)
     private LocalDateTime updatedAt;
 
+    @Setter
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)

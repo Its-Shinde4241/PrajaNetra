@@ -5,9 +5,12 @@ import React from "react";
 import { cn } from "@/lib/utils";
 import { useScroll } from "motion/react";
 import { Separator } from "@/components/ui/separator";
-import { useLocation } from "react-router-dom"; // Import from react-router-dom
-import webLogo from "@/assets/webLogo.png";
+import { useLocation } from "react-router-dom";
+import favicon from "@/assets/favicon.svg";
 import { ThemeTogglerButton } from "./animate-ui/components/buttons/theme-toggler";
+import { NavUser } from "./nav-user";
+import { useUserStore } from "@/store/userStore";
+
 const menuItems = [
   { name: "Home", href: "/" },
   { name: "complaint", href: "/complaint" },
@@ -16,11 +19,11 @@ const menuItems = [
   { name: "About", href: "#link" },
   { name: "Contact", href: "#link" },
 ];
-import { NavUser } from "./nav-user";
 export const Header = () => {
   const [menuState, setMenuState] = React.useState(false);
   const [scrolled, setScrolled] = React.useState(false);
-  const location = useLocation(); // Get current location
+  const location = useLocation();
+  const { isAuthenticated, user } = useUserStore();
 
   const { scrollYProgress } = useScroll();
 
@@ -55,14 +58,14 @@ export const Header = () => {
                 className="flex gap-2 -mr-3 whitespace-nowrap items-center"
               >
                 <img
-                  src={webLogo}
+                  src={favicon}
                   alt="Prajanetra Logo"
                   height={50}
                   width={50}
                   className="h-10 z-10 w-full hidden dark:block object-contain"
                 />
                 <img
-                  src={webLogo}
+                  src={favicon}
                   alt="Design Logo"
                   height={50}
                   width={50}
@@ -124,23 +127,30 @@ export const Header = () => {
                 </ul>
               </div>
               <Separator orientation="vertical" />
-              {/* <Search /> */}
-              <Separator orientation="vertical" />
               <ThemeTogglerButton direction="ttb" variant="ghost" className="cursor-pointer" />
               <Separator orientation="vertical" />
-              <div className="flex w-full flex-col space-y-3 sm:flex-row sm:gap-3 sm:space-y-0 md:w-fit">
-                <Button asChild variant="outline" size="sm">
-                  <a href="#">
-                    <span>Login</span>
-                  </a>
-                </Button>
-                <Button asChild size="sm">
-                  <a href="#">
-                    <span>Sign Up</span>
-                  </a>
-                </Button>
-                <NavUser user={{ name: "Shubham Shinde", email: "shinde@gmail.com", avatar: "" }} />
-              </div>
+              {isAuthenticated && user ? (
+                <NavUser
+                  user={{
+                    name: user.name,
+                    email: user.email,
+                    avatar: user.profileImageUrl || ""
+                  }}
+                />
+              ) : (
+                <div className="flex w-full flex-col space-y-3 sm:flex-row sm:gap-3 sm:space-y-0 md:w-fit">
+                  <Button asChild variant="outline" size="sm">
+                    <a href="/login">
+                      <span>Login</span>
+                    </a>
+                  </Button>
+                  <Button asChild size="sm">
+                    <a href="/signup">
+                      <span>Sign Up</span>
+                    </a>
+                  </Button>
+                </div>
+              )}
             </div>
           </div>
         </div>

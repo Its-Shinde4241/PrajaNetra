@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class HealthController {
 
     @GetMapping("/check")
-    public ResponseEntity<String> check() {
+    public ResponseEntity<?> check() {
         return ResponseEntity.status(HttpStatus.OK).body("Service is up and running");
     }
 }

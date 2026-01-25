@@ -1,7 +1,8 @@
 package com.app.prajanetraserver.Service;
 
 
-import com.app.prajanetraserver.DTO.Role;
+import com.app.prajanetraserver.DTO.ComplaintStatus;
+import com.app.prajanetraserver.Repo.ComplaintRepo;
 import com.app.prajanetraserver.Repo.UserRepo;
 import com.app.prajanetraserver.DTO.UserResponse;
 import com.app.prajanetraserver.Model.MyUserDetails;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 @Transactional
@@ -24,10 +26,12 @@ public class UserService implements UserDetailsService {
     private final UserRepo userRepo;
 
     private final PasswordEncoder passwordEncoder;
+    private final ComplaintRepo complaintRepo;
 
-    UserService(PasswordEncoder passwordEncoder, UserRepo userRepo) {
+    UserService(PasswordEncoder passwordEncoder, UserRepo userRepo, ComplaintRepo complaintRepo) {
         this.passwordEncoder = passwordEncoder;
         this.userRepo = userRepo;
+        this.complaintRepo = complaintRepo;
     }
 
     @Override
@@ -60,7 +64,7 @@ public class UserService implements UserDetailsService {
         return userRepo.findByEmail(email);
     }
 
-    public Optional<User> finByUserId(String id) {
+    public Optional<User> findByUserId(String id) {
         return userRepo.findUserByUserId((id));
     }
 
@@ -79,6 +83,9 @@ public class UserService implements UserDetailsService {
     }
 
     public UserResponse getUserResponse(User user) {
+        Set<String> complaintIds = complaintRepo.findComplaintIdsByUser(user.getId());
+        System.out.println(complaintIds);
+        long resolved = complaintRepo.countByUserAndStatus(user.getId(), ComplaintStatus.RESOLVED);
         return new UserResponse(
                 user.getUserId(),
                 user.getName(),
@@ -88,7 +95,9 @@ public class UserService implements UserDetailsService {
                 user.getLoginMethod(),
                 user.getCreatedAt(),
                 user.getUpdatedAt(),
-                user.getRoles()
+                user.getRoles(),
+                complaintIds,
+                resolved
         );
     }
 

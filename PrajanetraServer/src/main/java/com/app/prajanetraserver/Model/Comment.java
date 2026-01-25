@@ -1,52 +1,58 @@
-    package com.app.prajanetraserver.Model;
+package com.app.prajanetraserver.Model;
 
-    import jakarta.persistence.*;
-    import lombok.AllArgsConstructor;
-    import lombok.Data;
-    import lombok.NoArgsConstructor;
-    import net.minidev.json.annotate.JsonIgnore;
+import jakarta.persistence.*;
+import lombok.*;
+import net.minidev.json.annotate.JsonIgnore;
 
-    import java.time.LocalDateTime;
-    import java.util.UUID;
+import java.time.LocalDateTime;
+import java.util.UUID;
 
-    @Entity
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Table(name = "comments", indexes = @Index(name = "idx_comment_complaint", columnList = "complaint_id"))
-    public class Comment {
-        @Id
-        @GeneratedValue
-        private UUID id;
+@Entity
 
-        @Column(nullable = false, unique = true)
-        private String commentId;
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Table(name = "comments", indexes = @Index(name = "idx_comment_complaint", columnList = "complaint_id"))
+public class Comment {
+    @Id
+    @GeneratedValue
+    private UUID id;
 
-        @Column(nullable = false)
-        private String text;
+    @Setter
+    @Column(nullable = false, unique = true)
+    private String commentId;
 
-        private int likes = 0;
+    @Setter
+    @Column(nullable = false)
+    private String text;
 
-        @ManyToOne(fetch = FetchType.LAZY, optional = false)
-        @JoinColumn(name = "user_id", nullable = false)
-        private User user;
+    @Setter
+    private int likes = 0;
 
-        @JsonIgnore
-        @ManyToOne(fetch = FetchType.LAZY, optional = false)
-        @JoinColumn(name = "complaint_id", nullable = false)
-        private Complaint complaint;
+    @Setter
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
-        private LocalDateTime createdAt;
-        private LocalDateTime updatedAt;
+    @Setter
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "complaint_id", nullable = false)
+    private Complaint complaint;
 
-        @PrePersist
-        public void prePersist() {
-            this.createdAt = LocalDateTime.now();
-            this.updatedAt = LocalDateTime.now();
-        }
+    @Setter
+    private LocalDateTime createdAt;
+    @Setter
+    private LocalDateTime updatedAt;
 
-        @PreUpdate
-        public void preUpdate() {
-            this.updatedAt = LocalDateTime.now();
-        }
+    @PrePersist
+    public void prePersist() {
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
     }
+
+    @PreUpdate
+    public void preUpdate() {
+        this.updatedAt = LocalDateTime.now();
+    }
+}

@@ -7,7 +7,7 @@ const Hero = () => {
   return (
     <section className="relative min-h-screen flex items-center justify-center">
       {/* Static Overlay for Hero content readability - NO ANIMATIONS */}
-      <div className="absolute inset-0 bg-linear-to-b from-background/95 via-background/80 to-background/60 " />
+      <div className="absolute inset-0 bg-linear-to-b from-background/80 via-background/70 to-background/60 " />
 
       {/* Content - WITH ANIMATIONS */}
       <motion.div

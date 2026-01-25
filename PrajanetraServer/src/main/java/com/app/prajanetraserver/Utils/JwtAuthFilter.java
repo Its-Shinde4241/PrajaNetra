@@ -1,6 +1,5 @@
 package com.app.prajanetraserver.Utils;
 
-
 import com.app.prajanetraserver.Service.JwtService;
 import com.app.prajanetraserver.Service.UserService;
 import jakarta.servlet.FilterChain;
@@ -21,34 +20,50 @@ import java.io.IOException;
 public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
-
     private final ApplicationContext appContext;
 
-    JwtAuthFilter(JwtService jwtService, ApplicationContext appContext) {
+    public JwtAuthFilter(JwtService jwtService, ApplicationContext appContext) {
         this.jwtService = jwtService;
         this.appContext = appContext;
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException, ServletException, IOException {
-        String authHeader = request.getHeader("Authorization");
-        String token = null;
-        String userEmail = null;
+    protected void doFilterInternal(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            FilterChain filterChain
+    ) throws ServletException, IOException {
 
-        if (authHeader != null && authHeader.startsWith("Bearer")) {
-            token = authHeader.substring(7);
-            userEmail = jwtService.extractUserEmail(token);
+        final String authHeader = request.getHeader("Authorization");
+
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            filterChain.doFilter(request, response);
+            return;
         }
 
+        final String token = authHeader.substring(7);
+        final String email = jwtService.extractEmail(token);
 
-        if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = appContext.getBean(UserService.class).loadUserByUsername(userEmail);
+        if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+
+            UserDetails userDetails =
+                    appContext.getBean(UserService.class)
+                            .loadUserByUsername(email);
 
             if (jwtService.validateToken(token, userDetails)) {
-                UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 
-                authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+                UsernamePasswordAuthenticationToken authToken =
+                        new UsernamePasswordAuthenticationToken(
+                                userDetails,
+                                null,
+                                userDetails.getAuthorities()
+                        );
+
+                authToken.setDetails(
+                        new WebAuthenticationDetailsSource().buildDetails(request)
+                );
+
+                SecurityContextHolder.getContext().setAuthentication(authToken);
             }
         }
 

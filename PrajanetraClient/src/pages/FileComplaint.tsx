@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "motion/react";
+import { useComplaintStore } from "@/store/complaintStore";
+import { useUserStore } from "@/store/userStore";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,15 +17,15 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { FileUpload } from "@/components/ui/file-upload";
 import { toast } from "sonner";
-import { MapPin, FileText, Phone, Mail } from "lucide-react";
+import { MapPin, FileText } from "lucide-react";
 
 const FileComplaint = () => {
   const navigate = useNavigate();
+  const { createComplaint, isLoading } = useComplaintStore();
+  const { user } = useUserStore();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    phone: "",
+    title: "",
     category: "",
     location: "",
     description: "",
@@ -58,23 +60,40 @@ const FileComplaint = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!user) {
+      toast.error("Please login to file a complaint");
+      navigate("/login");
+      return;
+    }
+
     setIsSubmitting(true);
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    try {
+      const response = await createComplaint({
+        userId: user.userId,
+        title: formData.title,
+        category: formData.category,
+        location: formData.location,
+        description: formData.description,
+        images: formData.images,
+      });
 
-    // Generate a random complaint ID
-    const complaintId = `MCP${Date.now().toString().slice(-8)}`;
+      toast.success("Complaint filed successfully!", {
+        description: `Your complaint ID is ${response.complaintId}. You can track it anytime.`,
+      });
 
-    setIsSubmitting(false);
-    toast.success("Complaint filed successfully!", {
-      description: `Your complaint ID is ${complaintId}. You can track it anytime.`,
-    });
-
-    // Navigate to track page after a delay
-    setTimeout(() => {
-      navigate("/track-complaint", { state: { complaintId } });
-    }, 2000);
+      // Navigate to track page after a delay
+      setTimeout(() => {
+        navigate("/track-complaint", { state: { complaintId: response.complaintId } });
+      }, 1500);
+    } catch (error: any) {
+      toast.error("Failed to file complaint", {
+        description: error.message || "Please try again later",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleChange = (field: string, value: string) => {
@@ -84,7 +103,7 @@ const FileComplaint = () => {
   return (
     <div className="min-h-screen relative">
       {/* Static blur gradient background overlay - NO ANIMATIONS */}
-      <div className="absolute inset-0 bg-linear-to-br from-background/90 via-background/85 to-background/80 " />
+      <div className="absolute inset-0 bg-linear-to-b from-background/80 via-background/70 to-background/60  " />
 
       {/* Content - WITH ANIMATIONS */}
       <motion.div
@@ -160,110 +179,16 @@ const FileComplaint = () => {
 
               <CardContent>
                 <form onSubmit={handleSubmit} className="space-y-6">
-                  {/* Personal Information */}
-                  <motion.div
-                    className="space-y-4"
-                    initial={{ y: 20, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    exit={{ y: -10, opacity: 0 }}
-                    transition={{
-                      duration: 0.5,
-                      ease: "easeOut",
-                      delay: 0.8
-                    }}
-                  >
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <motion.div
-                        className="space-y-2"
-                        initial={{ x: -20, opacity: 0 }}
-                        animate={{ x: 0, opacity: 1 }}
-                        exit={{ x: -10, opacity: 0 }}
-                        transition={{
-                          duration: 0.5,
-                          ease: "easeOut",
-                          delay: 0.9
-                        }}
-                      >
-                        <Label htmlFor="name" className="flex items-center space-x-2">
-                          <span>Nick Name</span>
-                          <span className="text-destructive">*</span>
-                        </Label>
-                        <Input
-                          id="name"
-                          placeholder="Enter your full name"
-                          required
-                          value={formData.name}
-                          onChange={(e) => handleChange("name", e.target.value)}
-                          className="transition-all duration-300 focus:scale-105 hover:shadow-md"
-                        />
-                      </motion.div>
-
-                      <motion.div
-                        className="space-y-2"
-                        initial={{ x: 20, opacity: 0 }}
-                        animate={{ x: 0, opacity: 1 }}
-                        exit={{ x: 10, opacity: 0 }}
-                        transition={{
-                          duration: 0.5,
-                          ease: "easeOut",
-                          delay: 1.0
-                        }}
-                      >
-                        <Label htmlFor="phone" className="flex items-center space-x-2">
-                          <Phone className="w-4 h-4" />
-                          <span>Phone Number</span>
-                          <span className="text-destructive">*</span>
-                        </Label>
-                        <Input
-                          id="phone"
-                          type="tel"
-                          placeholder="Enter phone number"
-                          required
-                          value={formData.phone}
-                          onChange={(e) => handleChange("phone", e.target.value)}
-                          className="transition-all duration-300 focus:scale-105 hover:shadow-md"
-                        />
-                      </motion.div>
-                    </div>
-
-                    <motion.div
-                      className="space-y-2"
-                      initial={{ y: 20, opacity: 0 }}
-                      animate={{ y: 0, opacity: 1 }}
-                      exit={{ y: -10, opacity: 0 }}
-                      transition={{
-                        duration: 0.5,
-                        ease: "easeOut",
-                        delay: 1.1
-                      }}
-                    >
-                      <Label htmlFor="email" className="flex items-center space-x-2">
-                        <Mail className="w-4 h-4" />
-                        <span>Email Address</span>
-                        <span className="text-destructive">*</span>
-                      </Label>
-                      <Input
-                        id="email"
-                        type="email"
-                        placeholder="your.email@example.com"
-                        required
-                        value={formData.email}
-                        onChange={(e) => handleChange("email", e.target.value)}
-                        className="transition-all duration-300 focus:scale-105 hover:shadow-md"
-                      />
-                    </motion.div>
-                  </motion.div>
-
                   {/* Complaint Information */}
                   <motion.div
-                    className="space-y-4 pt-4 border-t border-border/50"
+                    className="space-y-4"
                     initial={{ y: 30, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
                     exit={{ y: -15, opacity: 0 }}
                     transition={{
                       duration: 0.6,
                       ease: "easeOut",
-                      delay: 1.2
+                      delay: 0.8
                     }}
                   >
                     <motion.div
@@ -274,7 +199,31 @@ const FileComplaint = () => {
                       transition={{
                         duration: 0.5,
                         ease: "easeOut",
-                        delay: 1.3
+                        delay: 0.9
+                      }}
+                    >
+                      <Label htmlFor="title">
+                        Complaint Title <span className="text-destructive">*</span>
+                      </Label>
+                      <Input
+                        id="title"
+                        placeholder="Brief title for your complaint"
+                        required
+                        value={formData.title}
+                        onChange={(e) => handleChange("title", e.target.value)}
+                        className="transition-all duration-300 focus:scale-105 hover:shadow-md"
+                      />
+                    </motion.div>
+
+                    <motion.div
+                      className="space-y-2"
+                      initial={{ y: 15, opacity: 0 }}
+                      animate={{ y: 0, opacity: 1 }}
+                      exit={{ y: -8, opacity: 0 }}
+                      transition={{
+                        duration: 0.5,
+                        ease: "easeOut",
+                        delay: 1.0
                       }}
                     >
                       <Label htmlFor="category">
@@ -306,7 +255,7 @@ const FileComplaint = () => {
                       transition={{
                         duration: 0.5,
                         ease: "easeOut",
-                        delay: 1.4
+                        delay: 1.1
                       }}
                     >
                       <Label htmlFor="location" className="flex items-center space-x-2">
@@ -332,7 +281,7 @@ const FileComplaint = () => {
                       transition={{
                         duration: 0.5,
                         ease: "easeOut",
-                        delay: 1.5
+                        delay: 1.2
                       }}
                     >
                       <Label htmlFor="description">
@@ -358,7 +307,7 @@ const FileComplaint = () => {
                       transition={{
                         duration: 0.5,
                         ease: "easeOut",
-                        delay: 1.6
+                        delay: 1.3
                       }}
                     >
                       <Label htmlFor="image">
@@ -382,7 +331,7 @@ const FileComplaint = () => {
                     transition={{
                       duration: 0.6,
                       ease: [0.25, 0.46, 0.45, 0.94],
-                      delay: 1.7
+                      delay: 1.4
                     }}
                   >
                     <motion.div
@@ -394,7 +343,7 @@ const FileComplaint = () => {
                         type="submit"
                         size="lg"
                         className="w-full relative overflow-hidden"
-                        disabled={isSubmitting}
+                        disabled={isSubmitting || isLoading}
                       >
                         <motion.span
                           animate={isSubmitting ? { opacity: 0 } : { opacity: 1 }}

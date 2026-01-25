@@ -2,9 +2,8 @@
 import { ThemeProvider } from "next-themes";
 import { BrowserRouter } from "react-router-dom";
 import { TooltipProvider } from "./components/ui/tooltip";
-import { Toaster as Sonner } from "./components/ui/sonner";
+import { Toaster } from "./components/ui/sonner";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Toaster } from "sonner";
 
 import { Header } from "./components/header";
 import { AppRouter } from "./AppRouter";
@@ -22,7 +21,6 @@ function App() {
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
           <Toaster />
-          <Sonner />
           <BrowserRouter>
             {/* Fixed Background Image - Outside all animations */}
             <div
