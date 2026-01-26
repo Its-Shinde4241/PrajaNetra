@@ -29,7 +29,6 @@ interface UserStore {
     isLoading: boolean;
     error: string | null;
 
-    // Actions
     login: (email: string, password: string) => Promise<void>;
     register: (name: string, email: string, password: string) => Promise<void>;
     loginWithGoogle: () => void;

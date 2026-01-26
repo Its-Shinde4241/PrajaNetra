@@ -14,6 +14,7 @@ export type ComplaintStatus = typeof ComplaintStatus[keyof typeof ComplaintStatu
 export interface Complaint {
     complaintId: string;
     userId: string;
+    title: string;
     category: string;
     location: string;
     description: string;
@@ -32,13 +33,6 @@ export interface CreateComplaintData {
     images?: File[];
 }
 
-export interface PaginatedComplaints {
-    complaints: Complaint[];
-    currentPage: number;
-    totalPages: number;
-    totalItems: number;
-}
-
 export interface ComplaintFilters {
     page?: number;
     size?: number;
@@ -50,9 +44,15 @@ export interface ComplaintFilters {
 }
 
 interface ComplaintStore {
-    complaints: Complaint[];
+    userComplaints: Complaint[]; // For user-specific complaints
+    allComplaints: Complaint[]; // For all complaints (admin/tracking page)
     currentComplaint: Complaint | null;
     pagination: {
+        currentPage: number;
+        totalPages: number;
+        totalItems: number;
+    };
+    userPagination: {
         currentPage: number;
         totalPages: number;
         totalItems: number;
@@ -64,6 +64,7 @@ interface ComplaintStore {
     createComplaint: (data: CreateComplaintData) => Promise<{ message: string; complaintId: string; complaint: Complaint }>;
     getComplaint: (complaintId: string) => Promise<void>;
     getAllComplaints: (filters?: ComplaintFilters) => Promise<void>;
+    getUserComplaints: (userId: string, filters?: Omit<ComplaintFilters, 'userId'>) => Promise<void>;
     updateComplaintStatus: (complaintId: string, status: ComplaintStatus) => Promise<void>;
     deleteComplaint: (complaintId: string) => Promise<void>;
     clearError: () => void;
@@ -71,9 +72,15 @@ interface ComplaintStore {
 }
 
 export const useComplaintStore = create<ComplaintStore>((set) => ({
-    complaints: [],
+    userComplaints: [],
+    allComplaints: [],
     currentComplaint: null,
     pagination: {
+        currentPage: 0,
+        totalPages: 0,
+        totalItems: 0,
+    },
+    userPagination: {
         currentPage: 0,
         totalPages: 0,
         totalItems: 0,
@@ -86,7 +93,6 @@ export const useComplaintStore = create<ComplaintStore>((set) => ({
         try {
             const formData = new FormData();
 
-            // Add complaint data as JSON string
             const complaintData = {
                 userId: data.userId,
                 title: data.title,
@@ -96,7 +102,6 @@ export const useComplaintStore = create<ComplaintStore>((set) => ({
             };
             formData.append('data', JSON.stringify(complaintData));
 
-            // Add images if provided
             if (data.images && data.images.length > 0) {
                 data.images.forEach((image) => {
                     formData.append('images', image);
@@ -133,6 +138,7 @@ export const useComplaintStore = create<ComplaintStore>((set) => ({
         }
     },
 
+    // For fetching all complaints (tracking page, admin, etc.)
     getAllComplaints: async (filters: ComplaintFilters = {}) => {
         set({ isLoading: true, error: null });
         try {
@@ -149,7 +155,7 @@ export const useComplaintStore = create<ComplaintStore>((set) => ({
             const response = await axiosInstance.get(`/complaints?${params.toString()}`);
 
             set({
-                complaints: response.data.complaints,
+                allComplaints: response.data.complaints,
                 pagination: {
                     currentPage: response.data.currentPage,
                     totalPages: response.data.totalPages,
@@ -164,6 +170,38 @@ export const useComplaintStore = create<ComplaintStore>((set) => ({
         }
     },
 
+    // For fetching user-specific complaints (profile page)
+    getUserComplaints: async (userId: string, filters: Omit<ComplaintFilters, 'userId'> = {}) => {
+        set({ isLoading: true, error: null });
+        try {
+            const params = new URLSearchParams();
+            params.append('userId', userId);
+
+            if (filters.page !== undefined) params.append('page', filters.page.toString());
+            if (filters.size !== undefined) params.append('size', filters.size.toString());
+            if (filters.status) params.append('status', filters.status);
+            if (filters.category) params.append('category', filters.category);
+            if (filters.sortBy) params.append('sortBy', filters.sortBy);
+            if (filters.sortDirection) params.append('sortDirection', filters.sortDirection);
+
+            const response = await axiosInstance.get(`/complaints?${params.toString()}`);
+
+            set({
+                userComplaints: response.data.complaints,
+                userPagination: {
+                    currentPage: response.data.currentPage,
+                    totalPages: response.data.totalPages,
+                    totalItems: response.data.totalItems,
+                },
+                isLoading: false,
+            });
+        } catch (error: any) {
+            const errorMessage = error.response?.data?.message || 'Failed to fetch user complaints';
+            set({ error: errorMessage, isLoading: false });
+            throw new Error(errorMessage);
+        }
+    },
+
     updateComplaintStatus: async (complaintId: string, status: ComplaintStatus) => {
         set({ isLoading: true, error: null });
         try {
@@ -171,9 +209,13 @@ export const useComplaintStore = create<ComplaintStore>((set) => ({
                 status,
             });
 
-            // Update the complaint in the list if it exists
             set((state) => ({
-                complaints: state.complaints.map((complaint) =>
+                userComplaints: state.userComplaints.map((complaint) =>
+                    complaint.complaintId === complaintId
+                        ? response.data.complaint
+                        : complaint
+                ),
+                allComplaints: state.allComplaints.map((complaint) =>
                     complaint.complaintId === complaintId
                         ? response.data.complaint
                         : complaint
@@ -195,9 +237,9 @@ export const useComplaintStore = create<ComplaintStore>((set) => ({
         try {
             await axiosInstance.delete(`/complaints/${complaintId}`);
 
-            // Remove the complaint from the list
             set((state) => ({
-                complaints: state.complaints.filter((complaint) => complaint.complaintId !== complaintId),
+                userComplaints: state.userComplaints.filter((complaint) => complaint.complaintId !== complaintId),
+                allComplaints: state.allComplaints.filter((complaint) => complaint.complaintId !== complaintId),
                 currentComplaint: state.currentComplaint?.complaintId === complaintId
                     ? null
                     : state.currentComplaint,

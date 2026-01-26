@@ -22,7 +22,7 @@ import { MapPin, FileText } from "lucide-react";
 const FileComplaint = () => {
   const navigate = useNavigate();
   const { createComplaint, isLoading } = useComplaintStore();
-  const { user } = useUserStore();
+  const { user, isAuthenticated } = useUserStore();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
@@ -61,7 +61,7 @@ const FileComplaint = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!user) {
+    if (!isAuthenticated || !user) {
       toast.error("Please login to file a complaint");
       navigate("/login");
       return;
@@ -85,7 +85,7 @@ const FileComplaint = () => {
 
       // Navigate to track page after a delay
       setTimeout(() => {
-        navigate("/track-complaint", { state: { complaintId: response.complaintId } });
+        navigate("/track", { state: { complaintId: response.complaintId } });
       }, 1500);
     } catch (error: any) {
       toast.error("Failed to file complaint", {

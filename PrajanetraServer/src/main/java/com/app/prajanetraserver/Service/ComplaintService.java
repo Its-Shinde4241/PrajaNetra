@@ -79,6 +79,7 @@ public class ComplaintService {
         return new ComplaintResponse(
                 complaint.getComplaintId(),
                 complaint.getUser().getUserId(),
+                complaint.getTitle(),
                 complaint.getCategory(),
                 complaint.getLocation(),
                 complaint.getDescription(),
