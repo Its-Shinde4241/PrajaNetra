@@ -46,7 +46,9 @@ public class ComplaintController {
             @RequestPart(required = false, name = "images") MultipartFile[] images) {
         try {
             CreateComplaintRequest request = objectMapper.readValue(dataJson, CreateComplaintRequest.class);
-
+            if (request.getTitle() == null || request.getTitle().trim().isEmpty()) {
+                return ResponseEntity.badRequest().body(Map.of("message", "Title is required"));
+            }
             if (request.getUserId() == null || request.getUserId().trim().isEmpty()) {
                 return ResponseEntity.badRequest().body(Map.of("message", "Name is required"));
             }

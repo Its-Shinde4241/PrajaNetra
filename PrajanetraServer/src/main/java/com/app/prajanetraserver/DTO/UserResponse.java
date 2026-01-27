@@ -12,6 +12,8 @@ public record UserResponse(
         String loginMethod,
         LocalDateTime createdAt,
         LocalDateTime updatedAt,
-        Set<Role> roles
+        Set<Role> roles,
+        Set<String> complaints,
+        long resolvedComplaints
 ) {
 }

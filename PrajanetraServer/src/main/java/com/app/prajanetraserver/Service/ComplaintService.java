@@ -29,7 +29,7 @@ public class ComplaintService {
 
     public Complaint createComplaint(CreateComplaintRequest request, List<String> imageUrls) {
         String complaintId = generateComplaintId();
-
+        System.out.println(imageUrls);
         Complaint complaint = new Complaint();
         complaint.setTitle(request.getTitle());
         complaint.setComplaintId(complaintId);
@@ -79,6 +79,7 @@ public class ComplaintService {
         return new ComplaintResponse(
                 complaint.getComplaintId(),
                 complaint.getUser().getUserId(),
+                complaint.getTitle(),
                 complaint.getCategory(),
                 complaint.getLocation(),
                 complaint.getDescription(),

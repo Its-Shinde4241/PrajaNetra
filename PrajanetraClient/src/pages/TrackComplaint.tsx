@@ -66,11 +66,11 @@ const TrackComplaint = () => {
   };
 
   return (
-    <div className="min-h-screen relative">
-      {/* Static blur gradient background overlay - NO ANIMATIONS */}
-      <div className="absolute inset-0 bg-linear-to-br from-background/90 via-background/85 to-background/80 " />
+    <div className="min-h-screen bg-linear-to-b from-background/80 via-background/70 to-background/60">
+      {/* Static blur gradient background overlay */}
+      <div className="absolute inset-0 " />
 
-      {/* Content - WITH ANIMATIONS */}
+      {/* Content */}
       <motion.div
         className="relative z-10 pt-24 pb-12 px-4 backdrop-blur-sm"
         initial={{ opacity: 0 }}
@@ -214,251 +214,253 @@ const TrackComplaint = () => {
           </motion.div>
 
           {/* Results */}
-          {searchedId && (
-            <motion.div
-              className="space-y-6"
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{
-                duration: 0.6,
-                ease: "easeOut",
-                delay: 0.9
-              }}
-            >
-              {/* Status Overview */}
-              <motion.div
-                initial={{ y: 30, opacity: 0, scale: 0.98 }}
-                animate={{ y: 0, opacity: 1, scale: 1 }}
-                exit={{ y: -15, opacity: 0, scale: 0.98 }}
-                transition={{
-                  duration: 0.6,
-                  ease: [0.25, 0.46, 0.45, 0.94],
-                  delay: 1.0
-                }}
-              >
-                <Card className="border-border/50 shadow-lg backdrop-blur-sm bg-card/95">
-                  <motion.div
-                    initial={{ y: 15, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    exit={{ y: -8, opacity: 0 }}
-                    transition={{
-                      duration: 0.5,
-                      ease: "easeOut",
-                      delay: 1.1
-                    }}
-                  >
-                    <CardHeader>
-                      <div className="flex items-center justify-between">
-                        <CardTitle className="flex items-center space-x-2">
-                          <motion.div
-                            initial={{ rotate: -10, scale: 0.8 }}
-                            animate={{ rotate: 0, scale: 1 }}
-                            transition={{ duration: 0.3, delay: 1.2 }}
-                          >
-                            {getStatusIcon(complaintData.status)}
-                          </motion.div>
-                          <span>Complaint #{complaintData.id}</span>
-                        </CardTitle>
-                        <motion.div
-                          initial={{ scale: 0.8, opacity: 0 }}
-                          animate={{ scale: 1, opacity: 1 }}
-                          transition={{ duration: 0.3, delay: 1.3 }}
-                        >
-                          <Badge className={`${getStatusColor(complaintData.status)} text-white`}>
-                            {complaintData.status}
-                          </Badge>
-                        </motion.div>
-                      </div>
-                      <CardDescription>
-                        Submitted on {complaintData.submittedDate} • Last updated{" "}
-                        {complaintData.lastUpdated}
-                      </CardDescription>
-                    </CardHeader>
-                  </motion.div>
-
-                  <CardContent className="space-y-4">
-                    <motion.div
-                      className="grid grid-cols-1 md:grid-cols-2 gap-4"
-                      initial={{ y: 20, opacity: 0 }}
-                      animate={{ y: 0, opacity: 1 }}
-                      exit={{ y: -10, opacity: 0 }}
-                      transition={{
-                        duration: 0.5,
-                        ease: "easeOut",
-                        delay: 1.4
-                      }}
-                    >
-                      <motion.div
-                        initial={{ x: -15, opacity: 0 }}
-                        animate={{ x: 0, opacity: 1 }}
-                        transition={{
-                          duration: 0.4,
-                          ease: "easeOut",
-                          delay: 1.5
-                        }}
-                      >
-                        <p className="text-sm font-medium text-muted-foreground mb-1">
-                          Category
-                        </p>
-                        <p className="text-foreground">{complaintData.category}</p>
-                      </motion.div>
-                      <motion.div
-                        initial={{ x: 15, opacity: 0 }}
-                        animate={{ x: 0, opacity: 1 }}
-                        transition={{
-                          duration: 0.4,
-                          ease: "easeOut",
-                          delay: 1.6
-                        }}
-                      >
-                        <p className="text-sm font-medium text-muted-foreground mb-1">
-                          Location
-                        </p>
-                        <p className="text-foreground">{complaintData.location}</p>
-                      </motion.div>
-                    </motion.div>
-
+          <motion.div
+            className="space-y-6 min-h-[600px]"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{
+              duration: 0.6,
+              ease: "easeOut",
+              delay: 0.9
+            }}
+          >
+            {searchedId && (
+              <>
+                {/* Status Overview */}
+                <motion.div
+                  initial={{ y: 30, opacity: 0, scale: 0.98 }}
+                  animate={{ y: 0, opacity: 1, scale: 1 }}
+                  exit={{ y: -15, opacity: 0, scale: 0.98 }}
+                  transition={{
+                    duration: 0.6,
+                    ease: [0.25, 0.46, 0.45, 0.94],
+                    delay: 1.0
+                  }}
+                >
+                  <Card className="border-border/50 shadow-lg backdrop-blur-sm bg-card/95">
                     <motion.div
                       initial={{ y: 15, opacity: 0 }}
                       animate={{ y: 0, opacity: 1 }}
                       exit={{ y: -8, opacity: 0 }}
                       transition={{
-                        duration: 0.4,
+                        duration: 0.5,
                         ease: "easeOut",
-                        delay: 1.7
+                        delay: 1.1
                       }}
                     >
-                      <p className="text-sm font-medium text-muted-foreground mb-1">
-                        Description
-                      </p>
-                      <p className="text-foreground">{complaintData.description}</p>
+                      <CardHeader>
+                        <div className="flex items-center justify-between">
+                          <CardTitle className="flex items-center space-x-2">
+                            <motion.div
+                              initial={{ rotate: -10, scale: 0.8 }}
+                              animate={{ rotate: 0, scale: 1 }}
+                              transition={{ duration: 0.3, delay: 1.2 }}
+                            >
+                              {getStatusIcon(complaintData.status)}
+                            </motion.div>
+                            <span>Complaint #{complaintData.id}</span>
+                          </CardTitle>
+                          <motion.div
+                            initial={{ scale: 0.8, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            transition={{ duration: 0.3, delay: 1.3 }}
+                          >
+                            <Badge className={`${getStatusColor(complaintData.status)} text-white`}>
+                              {complaintData.status}
+                            </Badge>
+                          </motion.div>
+                        </div>
+                        <CardDescription>
+                          Submitted on {complaintData.submittedDate} • Last updated{" "}
+                          {complaintData.lastUpdated}
+                        </CardDescription>
+                      </CardHeader>
                     </motion.div>
-                  </CardContent>
-                </Card>
-              </motion.div>
 
-              {/* Timeline */}
-              <motion.div
-                initial={{ y: 40, opacity: 0, scale: 0.98 }}
-                animate={{ y: 0, opacity: 1, scale: 1 }}
-                exit={{ y: -20, opacity: 0, scale: 0.98 }}
-                transition={{
-                  duration: 0.6,
-                  ease: [0.25, 0.46, 0.45, 0.94],
-                  delay: 1.8
-                }}
-              >
-                <Card className="border-border/50 shadow-lg backdrop-blur-sm bg-card/95">
-                  <motion.div
-                    initial={{ y: 15, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    exit={{ y: -8, opacity: 0 }}
-                    transition={{
-                      duration: 0.5,
-                      ease: "easeOut",
-                      delay: 1.9
-                    }}
-                  >
-                    <CardHeader>
-                      <CardTitle>Resolution Timeline</CardTitle>
-                      <CardDescription>
-                        Track the progress of your complaint resolution
-                      </CardDescription>
-                    </CardHeader>
-                  </motion.div>
-
-                  <CardContent>
-                    <div className="space-y-4">
-                      {complaintData.timeline.map((item, index) => (
+                    <CardContent className="space-y-4">
+                      <motion.div
+                        className="grid grid-cols-1 md:grid-cols-2 gap-4"
+                        initial={{ y: 20, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        exit={{ y: -10, opacity: 0 }}
+                        transition={{
+                          duration: 0.5,
+                          ease: "easeOut",
+                          delay: 1.4
+                        }}
+                      >
                         <motion.div
-                          key={index}
-                          className="flex items-start space-x-4"
-                          initial={{ x: -20, opacity: 0 }}
+                          initial={{ x: -15, opacity: 0 }}
                           animate={{ x: 0, opacity: 1 }}
-                          exit={{ x: -10, opacity: 0 }}
                           transition={{
                             duration: 0.4,
                             ease: "easeOut",
-                            delay: 2.0 + index * 0.1
+                            delay: 1.5
                           }}
                         >
-                          <div className="relative">
+                          <p className="text-sm font-medium text-muted-foreground mb-1">
+                            Category
+                          </p>
+                          <p className="text-foreground">{complaintData.category}</p>
+                        </motion.div>
+                        <motion.div
+                          initial={{ x: 15, opacity: 0 }}
+                          animate={{ x: 0, opacity: 1 }}
+                          transition={{
+                            duration: 0.4,
+                            ease: "easeOut",
+                            delay: 1.6
+                          }}
+                        >
+                          <p className="text-sm font-medium text-muted-foreground mb-1">
+                            Location
+                          </p>
+                          <p className="text-foreground">{complaintData.location}</p>
+                        </motion.div>
+                      </motion.div>
+
+                      <motion.div
+                        initial={{ y: 15, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        exit={{ y: -8, opacity: 0 }}
+                        transition={{
+                          duration: 0.4,
+                          ease: "easeOut",
+                          delay: 1.7
+                        }}
+                      >
+                        <p className="text-sm font-medium text-muted-foreground mb-1">
+                          Description
+                        </p>
+                        <p className="text-foreground">{complaintData.description}</p>
+                      </motion.div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+
+                {/* Timeline */}
+                <motion.div
+                  initial={{ y: 40, opacity: 0, scale: 0.98 }}
+                  animate={{ y: 0, opacity: 1, scale: 1 }}
+                  exit={{ y: -20, opacity: 0, scale: 0.98 }}
+                  transition={{
+                    duration: 0.6,
+                    ease: [0.25, 0.46, 0.45, 0.94],
+                    delay: 1.8
+                  }}
+                >
+                  <Card className="border-border/50 shadow-lg backdrop-blur-sm bg-card/95">
+                    <motion.div
+                      initial={{ y: 15, opacity: 0 }}
+                      animate={{ y: 0, opacity: 1 }}
+                      exit={{ y: -8, opacity: 0 }}
+                      transition={{
+                        duration: 0.5,
+                        ease: "easeOut",
+                        delay: 1.9
+                      }}
+                    >
+                      <CardHeader>
+                        <CardTitle>Resolution Timeline</CardTitle>
+                        <CardDescription>
+                          Track the progress of your complaint resolution
+                        </CardDescription>
+                      </CardHeader>
+                    </motion.div>
+
+                    <CardContent>
+                      <div className="space-y-4">
+                        {complaintData.timeline.map((item, index) => (
+                          <motion.div
+                            key={index}
+                            className="flex items-start space-x-4"
+                            initial={{ x: -20, opacity: 0 }}
+                            animate={{ x: 0, opacity: 1 }}
+                            exit={{ x: -10, opacity: 0 }}
+                            transition={{
+                              duration: 0.4,
+                              ease: "easeOut",
+                              delay: 2.0 + index * 0.1
+                            }}
+                          >
+                            <div className="relative">
+                              <motion.div
+                                className={`w-8 h-8 rounded-full flex items-center justify-center ${item.completed
+                                  ? "bg-primary text-primary-foreground"
+                                  : "bg-muted text-muted-foreground"
+                                  }`}
+                                initial={{ scale: 0.8, opacity: 0 }}
+                                animate={{ scale: 1, opacity: 1 }}
+                                transition={{
+                                  duration: 0.3,
+                                  ease: "easeOut",
+                                  delay: 2.1 + index * 0.1
+                                }}
+                              >
+                                {item.completed ? (
+                                  <CheckCircle2 className="w-4 h-4" />
+                                ) : (
+                                  <Clock className="w-4 h-4" />
+                                )}
+                              </motion.div>
+                              {index < complaintData.timeline.length - 1 && (
+                                <motion.div
+                                  className={`absolute left-4 top-8 w-0.5 h-8 ${item.completed ? "bg-primary" : "bg-muted"
+                                    }`}
+                                  initial={{ height: 0, opacity: 0 }}
+                                  animate={{ height: 32, opacity: 1 }}
+                                  transition={{
+                                    duration: 0.3,
+                                    ease: "easeOut",
+                                    delay: 2.2 + index * 0.1
+                                  }}
+                                />
+                              )}
+                            </div>
                             <motion.div
-                              className={`w-8 h-8 rounded-full flex items-center justify-center ${item.completed
-                                ? "bg-primary text-primary-foreground"
-                                : "bg-muted text-muted-foreground"
-                                }`}
-                              initial={{ scale: 0.8, opacity: 0 }}
-                              animate={{ scale: 1, opacity: 1 }}
+                              className="flex-1 pt-1"
+                              initial={{ y: 10, opacity: 0 }}
+                              animate={{ y: 0, opacity: 1 }}
                               transition={{
                                 duration: 0.3,
                                 ease: "easeOut",
-                                delay: 2.1 + index * 0.1
+                                delay: 2.2 + index * 0.1
                               }}
                             >
-                              {item.completed ? (
-                                <CheckCircle2 className="w-4 h-4" />
-                              ) : (
-                                <Clock className="w-4 h-4" />
+                              <div className="flex items-center justify-between mb-1">
+                                <p
+                                  className={`font-medium ${item.completed ? "text-foreground" : "text-muted-foreground"
+                                    }`}
+                                >
+                                  {item.status}
+                                </p>
+                                <p className="text-sm text-muted-foreground">{item.date}</p>
+                              </div>
+                              {item.completed && index === complaintData.timeline.findIndex(t => t.completed) && (
+                                <motion.p
+                                  className="text-sm text-primary flex items-center mt-1"
+                                  initial={{ x: -10, opacity: 0 }}
+                                  animate={{ x: 0, opacity: 1 }}
+                                  transition={{
+                                    duration: 0.3,
+                                    ease: "easeOut",
+                                    delay: 2.3 + index * 0.1
+                                  }}
+                                >
+                                  Current Stage <ArrowRight className="w-3 h-3 ml-1" />
+                                </motion.p>
                               )}
                             </motion.div>
-                            {index < complaintData.timeline.length - 1 && (
-                              <motion.div
-                                className={`absolute left-4 top-8 w-0.5 h-8 ${item.completed ? "bg-primary" : "bg-muted"
-                                  }`}
-                                initial={{ height: 0, opacity: 0 }}
-                                animate={{ height: 32, opacity: 1 }}
-                                transition={{
-                                  duration: 0.3,
-                                  ease: "easeOut",
-                                  delay: 2.2 + index * 0.1
-                                }}
-                              />
-                            )}
-                          </div>
-                          <motion.div
-                            className="flex-1 pt-1"
-                            initial={{ y: 10, opacity: 0 }}
-                            animate={{ y: 0, opacity: 1 }}
-                            transition={{
-                              duration: 0.3,
-                              ease: "easeOut",
-                              delay: 2.2 + index * 0.1
-                            }}
-                          >
-                            <div className="flex items-center justify-between mb-1">
-                              <p
-                                className={`font-medium ${item.completed ? "text-foreground" : "text-muted-foreground"
-                                  }`}
-                              >
-                                {item.status}
-                              </p>
-                              <p className="text-sm text-muted-foreground">{item.date}</p>
-                            </div>
-                            {item.completed && index === complaintData.timeline.findIndex(t => t.completed) && (
-                              <motion.p
-                                className="text-sm text-primary flex items-center mt-1"
-                                initial={{ x: -10, opacity: 0 }}
-                                animate={{ x: 0, opacity: 1 }}
-                                transition={{
-                                  duration: 0.3,
-                                  ease: "easeOut",
-                                  delay: 2.3 + index * 0.1
-                                }}
-                              >
-                                Current Stage <ArrowRight className="w-3 h-3 ml-1" />
-                              </motion.p>
-                            )}
                           </motion.div>
-                        </motion.div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            </motion.div>
-          )}
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              </>
+            )}
+          </motion.div>
         </div>
       </motion.div>
     </div>

@@ -11,6 +11,8 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
 import { Button } from "./ui/button"
 import { BadgeCheck, Bell, CreditCard, LogOut, Sparkles } from "lucide-react"
+import { useNavigate } from "react-router-dom"
+import { useUserStore } from "@/store/userStore"
 
 export function NavUser({
     user,
@@ -21,6 +23,22 @@ export function NavUser({
         avatar: string
     }
 }) {
+    const navigate = useNavigate();
+    const { logout } = useUserStore();
+
+    const getInitials = (name: string) => {
+        const parts = name.trim().split(" ").filter(n => n);
+        if (parts.length >= 2) {
+            return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+        }
+        return parts[0]?.slice(0, 2).toUpperCase() || "U";
+    };
+
+    const handleLogout = () => {
+        logout();
+        navigate("/");
+    };
+
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -30,7 +48,9 @@ export function NavUser({
                 >
                     <Avatar className="rounded-lg w-full h-full">
                         <AvatarImage src={user.avatar} alt={user.name} />
-                        <AvatarFallback className="rounded-lg w-full h-full text-sm font-semibold">{user.name.trim().split(" ")[0][0] + user.name.trim().split(" ")[1][0]}</AvatarFallback>
+                        <AvatarFallback className="rounded-lg w-full h-full text-sm font-semibold">
+                            {getInitials(user.name)}
+                        </AvatarFallback>
                     </Avatar>
                 </Button>
             </DropdownMenuTrigger>
@@ -44,7 +64,9 @@ export function NavUser({
                     <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                         <Avatar className="h-8 w-8 rounded-lg">
                             <AvatarImage src={user.avatar} alt={user.name} />
-                            <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                            <AvatarFallback className="rounded-lg">
+                                {getInitials(user.name)}
+                            </AvatarFallback>
                         </Avatar>
                         <div className="grid flex-1 text-left text-sm leading-tight">
                             <span className="truncate font-medium">{user.name}</span>
@@ -61,13 +83,13 @@ export function NavUser({
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
                 <DropdownMenuGroup>
-                    <DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => navigate("/profile")}>
                         <BadgeCheck />
-                        Account
+                        Profile
                     </DropdownMenuItem>
-                    <DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => navigate("/track")}>
                         <CreditCard />
-                        complaints
+                        My Complaints
                     </DropdownMenuItem>
                     <DropdownMenuItem>
                         <Bell />
@@ -75,7 +97,7 @@ export function NavUser({
                     </DropdownMenuItem>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={handleLogout}>
                     <LogOut />
                     Log out
                 </DropdownMenuItem>

@@ -13,6 +13,7 @@ import java.util.List;
 public class ComplaintResponse {
     private String complaintId;
     private String userId;
+    private String title;
     private String category;
     private String location;
     private String description;

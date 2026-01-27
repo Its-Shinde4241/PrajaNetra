@@ -1,7 +1,6 @@
 package com.app.prajanetraserver.Controller;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -10,15 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
-import org.springframework.security.oauth2.core.user.OAuth2User;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.app.prajanetraserver.DTO.LoginRequest;
 import com.app.prajanetraserver.DTO.RegisterRequest;
@@ -30,7 +21,6 @@ import com.app.prajanetraserver.Service.UserService;
 import jakarta.servlet.http.HttpServletResponse;
 
 @RestController
-@CrossOrigin
 @RequestMapping("/api/auth")
 public class AuthController {
 
@@ -38,7 +28,7 @@ public class AuthController {
     private final UserService userService;
     private final JwtService jwtService;
 
-    AuthController(UserService userService, JwtService jwtService, AuthenticationManager authenticationManager, PasswordEncoder passwordEncoder) {
+    AuthController(UserService userService, JwtService jwtService, AuthenticationManager authenticationManager) {
         this.userService = userService;
         this.jwtService = jwtService;
         this.authenticationManager = authenticationManager;
@@ -50,9 +40,9 @@ public class AuthController {
         try {
             Authentication authenticationRequest
                     = new UsernamePasswordAuthenticationToken(
-                            loginRequest.email(),
-                            loginRequest.password()
-                    );
+                    loginRequest.email(),
+                    loginRequest.password()
+            );
 
             Authentication authenticationResponse
                     = this.authenticationManager.authenticate(authenticationRequest);
@@ -60,7 +50,7 @@ public class AuthController {
             MyUserDetails myUserDetails = (MyUserDetails) authenticationResponse.getPrincipal();
             User user = myUserDetails.getUser();
 
-            String jwtToken = jwtService.generateToken(authenticationResponse.getName());
+            String jwtToken = jwtService.generateToken(user);
 
             System.out.println("User " + user + " authenticated successfully.");
 
@@ -72,7 +62,9 @@ public class AuthController {
 
         } catch (Exception e) {
             System.out.println("Authentication failed for user: " + loginRequest.email() + " Error: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Authentication failed: " + e.getMessage());
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Invalid email or password");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         }
     }
 
@@ -80,11 +72,11 @@ public class AuthController {
     public ResponseEntity<?> register(@RequestBody RegisterRequest registerRequest) {
         User user;
         try {
-            String jwtToken = jwtService.generateToken(registerRequest.email());
             if (userService.findByEmail(registerRequest.email()).isPresent()) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User already exists with email: " + registerRequest.email());
             }
             user = userService.createUser(registerRequest.email(), registerRequest.password(), registerRequest.name());
+            String jwtToken = jwtService.generateToken(user);
 
             Map<String, Object> response = new HashMap<>();
             response.put("token", jwtToken);
@@ -100,46 +92,32 @@ public class AuthController {
         }
     }
 
-    @GetMapping("/oauth2/success")
-    public ResponseEntity<?> googleRegisterAndLogin(OAuth2AuthenticationToken oAuth2AuthenticationToken) {
-        try {
-            OAuth2User oAuth2User = oAuth2AuthenticationToken.getPrincipal();
-            String email = oAuth2User.getAttribute("email");
-            String name = oAuth2User.getAttribute("name");
-            String userProfileImageUrl = oAuth2User.getAttribute("picture");
-            String googleId = oAuth2User.getAttribute("sub");
-
-            User user = userService.findByEmail(email).orElseGet(() -> {
-                User newUser = new User();
-                newUser.setEmail(email);
-                newUser.setName(name);
-                newUser.setGoogleId(googleId);
-                newUser.setProfileImageUrl(userProfileImageUrl);
-                return userService.createOauthUser(newUser);
-            });
-
-            user.setGoogleId(googleId);
-            user.setUpdatedAt(LocalDateTime.now());
-            user = userService.updateUser(user);
-
-            Map<String, Object> response = new HashMap<>();
-            String jwtToken = jwtService.generateToken(email);
-            response.put("token", jwtToken);
-            response.put("user", userService.getUserResponse(user));
-            response.put("message", "Login successful via Google");
-
-            return ResponseEntity.status(HttpStatus.OK).body(response);
-
-        } catch (Exception e) {
-            System.out.println("Google login failed: " + e.getMessage());
-            Map<String, Object> response = new HashMap<>();
-            response.put("message", "Login failed: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-        }
-    }
-
     @GetMapping("/google/login")
     public void redirectToGoogle(HttpServletResponse response) throws IOException {
         response.sendRedirect("/oauth2/authorization/google");
     }
+
+    @GetMapping("/me")
+    public ResponseEntity<?> getCurrentUser(Authentication authentication) {
+
+        if (authentication == null ||
+                !authentication.isAuthenticated() ||
+                authentication.getPrincipal().equals("anonymousUser")) {
+
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("authenticated", false));
+        }
+
+        MyUserDetails principal = (MyUserDetails) authentication.getPrincipal();
+        User user = principal.getUser();
+
+        return ResponseEntity.ok(
+                Map.of(
+                        "authenticated", true,
+                        "user", userService.getUserResponse(user)
+                )
+        );
+    }
+
+
 }
