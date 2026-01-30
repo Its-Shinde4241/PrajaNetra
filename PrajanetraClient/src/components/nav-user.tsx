@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
 import { Button } from "./ui/button"
-import { BadgeCheck, Bell, CreditCard, LogOut, Sparkles } from "lucide-react"
+import { BadgeCheck, Bell, CreditCard, LogOut } from "lucide-react"
 import { useNavigate } from "react-router-dom"
 import { useUserStore } from "@/store/userStore"
 
@@ -55,7 +55,7 @@ export function NavUser({
                 </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent
-                className=" min-w-56 rounded-lg"
+                className=" min-w-56 rounded-lg backdrop-blur-md bg-transparent border border-primary/15"
                 side="bottom"
                 align="end"
                 sideOffset={15}
@@ -74,13 +74,6 @@ export function NavUser({
                         </div>
                     </div>
                 </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuGroup>
-                    <DropdownMenuItem>
-                        <Sparkles />
-                        Upgrade to Pro
-                    </DropdownMenuItem>
-                </DropdownMenuGroup>
                 <DropdownMenuSeparator />
                 <DropdownMenuGroup>
                     <DropdownMenuItem onClick={() => navigate("/profile")}>

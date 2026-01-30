@@ -35,11 +35,12 @@ interface UserStore {
     logout: () => void;
     clearError: () => void;
     setUser: (user: User, token: string) => void;
+    validateToken: () => Promise<void>;
 }
 
 export const useUserStore = create<UserStore>()(
     persist(
-        (set) => ({
+        (set, get) => ({
             user: null,
             token: null,
             isAuthenticated: false,
@@ -140,6 +141,36 @@ export const useUserStore = create<UserStore>()(
                     isAuthenticated: true,
                     error: null,
                 });
+            },
+            validateToken: async () => {
+                const { token } = get();
+
+                if (!token) {
+                    set({ isAuthenticated: false, user: null });
+                    return;
+                }
+
+                try {
+                    // Set token before making request
+                    setAuthToken(token);
+
+                    const response = await axiosInstance.get<{ user: User }>('/auth/me');
+
+                    set({
+                        user: response.data.user,
+                        isAuthenticated: true,
+                        error: null,
+                    });
+                } catch (error: any) {
+                    // Token is invalid/expired - clear everything
+                    setAuthToken(null);
+                    set({
+                        user: null,
+                        token: null,
+                        isAuthenticated: false,
+                        error: null,
+                    });
+                }
             },
         }),
         {

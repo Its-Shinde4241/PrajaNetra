@@ -11,10 +11,15 @@ import Signup from "./pages/Signup";
 import Login from "./pages/Login";
 import Profile from "./pages/Profile";
 import OAuthCallback from "./pages/OAuthCallback";
+import { useEffect } from "react";
 
 // Protected Route Component - Only for authenticated users
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
-    const { isAuthenticated } = useUserStore();
+    const { isAuthenticated, validateToken } = useUserStore();
+
+    useEffect(() => {
+        validateToken();
+    }, [validateToken]);
 
     if (!isAuthenticated) {
         return <Navigate to="/login" replace />;
@@ -86,7 +91,9 @@ export function AppRouter() {
                     <Route
                         path="/"
                         element={
-                            <Index />
+                            <ProtectedRoute>
+                                <Index />
+                            </ProtectedRoute>
                         }
                     />
                     <Route

@@ -30,32 +30,38 @@ export const ComplaintCard = ({ complaint }: ComplaintCardProps) => {
                         <div className="flex flex-wrap items-center gap-2 text-sm">
                             <Badge variant="outline">{complaint.status}</Badge>
                             <Badge variant="secondary">{complaint.category}</Badge>
-                            <span className="text-muted-foreground text-xs">
-                                {new Date(complaint.createdAt).toLocaleDateString()}
-                            </span>
                         </div>
                     </div>
                     {complaint.imageUrls && complaint.imageUrls.length > 0 && (
-                        <div className="flex gap-1 shrink-0">
-                            {complaint.imageUrls.slice(0, 2).map((imageUrl, index) => (
-                                <div
-                                    key={index}
-                                    className="w-16 h-16 rounded-md overflow-hidden border border-border"
-                                >
-                                    <img
-                                        src={imageUrl}
-                                        alt={`Complaint image ${index + 1}`}
-                                        className="w-full h-full object-cover"
-                                    />
-                                </div>
-                            ))}
-                            {complaint.imageUrls.length > 2 && (
-                                <div className="w-16 h-16 rounded-md overflow-hidden border border-border bg-muted flex items-center justify-center">
-                                    <span className="text-xs font-medium text-muted-foreground">
-                                        +{complaint.imageUrls.length - 2}
-                                    </span>
-                                </div>
-                            )}
+                        <div className="flex flex-col gap-2 shrink-0">
+                            <div className="flex gap-1">
+                                {complaint.imageUrls.slice(0, 2).map((imageUrl, index) => (
+                                    <div
+                                        key={index}
+                                        className="w-16 h-16 rounded-md overflow-hidden border border-border"
+                                    >
+                                        <img
+                                            src={imageUrl}
+                                            alt={`Complaint image ${index + 1}`}
+                                            className="w-full h-full object-cover"
+                                        />
+                                    </div>
+                                ))}
+                                {complaint.imageUrls.length > 2 && (
+                                    <div className="w-16 h-16 rounded-md overflow-hidden border border-border bg-muted flex items-center justify-center">
+                                        <span className="text-xs font-medium text-muted-foreground">
+                                            +{complaint.imageUrls.length - 2}
+                                        </span>
+                                    </div>
+                                )}
+                            </div>
+                            <span className="text-muted-foreground text-xs text-center">
+                                {new Date(complaint.createdAt).toLocaleDateString('en-US', {
+                                    year: 'numeric',
+                                    month: 'long',
+                                    day: 'numeric'
+                                })}
+                            </span>
                         </div>
                     )}
                 </div>

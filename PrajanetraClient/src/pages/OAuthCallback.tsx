@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUserStore } from "@/store/userStore";
 import { axiosInstance } from "@/lib/axios";
+import ActivityIcon from "@/components/activity-icon";
 
 export default function OAuthCallback() {
     const navigate = useNavigate();
@@ -21,11 +22,8 @@ export default function OAuthCallback() {
             }
 
             try {
-                // 1️⃣ Persist token in Zustand-compatible way
                 setUser(null as any, token);
-                // ^ temporary user, token is what matters now
 
-                // 2️⃣ Ask backend who the user is (single source of truth)
                 const res = await axiosInstance.get("/auth/me");
                 console.log("OAuth /auth/me response:", res);
                 // backend returns: { authenticated: true, user: {...} }
@@ -33,11 +31,8 @@ export default function OAuthCallback() {
                     throw new Error("Unauthenticated");
                 }
 
-                // 3️⃣ Store REAL user
                 console.log("OAuth login successful:", res.data.user);
                 setUser(res.data.user, token);
-
-                // 4️⃣ Redirect
                 navigate("/");
             } catch (err) {
                 logout();
@@ -49,10 +44,15 @@ export default function OAuthCallback() {
     }, [navigate, setUser, logout]);
 
     return (
-        <div className="flex items-center justify-center min-h-screen">
+        <div className="flex items-center justify-center min-h-screen inset-0 bg-linear-to-br from-background/80 via-background/70 to-background/60">
             <div className="text-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto" />
-                <p className="mt-4 text-gray-600">Completing sign in...</p>
+                <ActivityIcon
+                    className="text-black dark:text-white"
+                    size={40}
+                    duration={2}
+                    strokeWidth={2}
+                    ease="easeInOut"
+                />
             </div>
         </div>
     );
