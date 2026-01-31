@@ -83,14 +83,24 @@ public class ComplaintService {
                 complaint.getCategory(),
                 complaint.getLocation(),
                 complaint.getDescription(),
+                complaint.getLikes(),
                 complaint.getImageUrls(),
                 complaint.getStatus(),
                 complaint.getCreatedAt(),
-                complaint.getUpdatedAt());
+                complaint.getUpdatedAt()
+        );
     }
 
     public void deleteComplaint(String complaintId) {
         complaintRepo.deleteByComplaintId(complaintId);
+    }
+
+    public void incrementLikes(String complaintId) {
+        complaintRepo.incrementLikes(complaintId);
+    }
+
+    public void decrementLikes(String complaintId) {
+        complaintRepo.decrementLikes(complaintId);
     }
 
     private String generateComplaintId() {

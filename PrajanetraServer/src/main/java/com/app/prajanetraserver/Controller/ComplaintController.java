@@ -91,7 +91,10 @@ public class ComplaintController {
             Complaint complaint = complaintService.getComplaintByComplaintId(complaintId)
                     .orElseThrow(() -> new RuntimeException("Complaint not found with ID: " + complaintId));
 
-            ComplaintResponse response = complaintService.toComplaintResponse(complaint);
+            ComplaintResponse complaintResponse = complaintService.toComplaintResponse(complaint);
+            Map<String, Object> response = new HashMap<>();
+            response.put("complaint", complaintResponse);
+            response.put("message", "Complaint tracked successfully");
             return ResponseEntity.ok(response);
 
         } catch (RuntimeException e) {
@@ -186,6 +189,28 @@ public class ComplaintController {
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+    }
+
+    @PutMapping("/like/{complaintId}")
+    ResponseEntity<?> incrementLikes(@PathVariable String complaintId) {
+        try {
+            complaintService.incrementLikes(complaintId);
+            return ResponseEntity.status(HttpStatus.OK).body(Map.of("message", "Complaint Liked Successfully"));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "Complaint Liked Failed"));
+        }
+    }
+
+    @PutMapping("/dislike/{complaintId}")
+    ResponseEntity<?> decrementLikes(@PathVariable String complaintId) {
+        try {
+            complaintService.decrementLikes(complaintId);
+            return ResponseEntity.status(HttpStatus.OK).body(Map.of("message", "Complaint disliked Successfully"));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "Complaint dislike Failed"));
         }
     }
 }

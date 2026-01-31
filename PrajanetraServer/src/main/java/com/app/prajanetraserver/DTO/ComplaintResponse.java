@@ -17,6 +17,7 @@ public class ComplaintResponse {
     private String category;
     private String location;
     private String description;
+    private long likes;
     private List<String> imageUrls;
     private ComplaintStatus status;
     private LocalDateTime createdAt;

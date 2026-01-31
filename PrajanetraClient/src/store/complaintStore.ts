@@ -18,6 +18,7 @@ export interface Complaint {
     category: string;
     location: string;
     description: string;
+    likes: number;
     status: ComplaintStatus;
     imageUrls?: string[];
     createdAt: string;
@@ -67,6 +68,8 @@ interface ComplaintStore {
     getUserComplaints: (userId: string, filters?: Omit<ComplaintFilters, 'userId'>) => Promise<void>;
     updateComplaintStatus: (complaintId: string, status: ComplaintStatus) => Promise<void>;
     deleteComplaint: (complaintId: string) => Promise<void>;
+    likeComplaint: (complaintId: string) => Promise<void>;
+    dislikeComplaint: (complaintId: string) => Promise<void>;
     clearError: () => void;
     clearCurrentComplaint: () => void;
 }
@@ -247,6 +250,62 @@ export const useComplaintStore = create<ComplaintStore>((set) => ({
             }));
         } catch (error: any) {
             const errorMessage = error.response?.data?.message || 'Failed to delete complaint';
+            set({ error: errorMessage, isLoading: false });
+            throw new Error(errorMessage);
+        }
+    },
+
+    likeComplaint: async (complaintId: string) => {
+        set({ isLoading: true, error: null });
+        try {
+            await axiosInstance.put(`/complaints/like/${complaintId}`);
+
+            set((state) => ({
+                userComplaints: state.userComplaints.map((complaint) =>
+                    complaint.complaintId === complaintId
+                        ? { ...complaint, likes: complaint.likes + 1 }
+                        : complaint
+                ),
+                allComplaints: state.allComplaints.map((complaint) =>
+                    complaint.complaintId === complaintId
+                        ? { ...complaint, likes: complaint.likes + 1 }
+                        : complaint
+                ),
+                currentComplaint: state.currentComplaint?.complaintId === complaintId
+                    ? { ...state.currentComplaint, likes: state.currentComplaint.likes + 1 }
+                    : state.currentComplaint,
+                isLoading: false,
+            }));
+        } catch (error: any) {
+            const errorMessage = error.response?.data?.message || 'Failed to like complaint';
+            set({ error: errorMessage, isLoading: false });
+            throw new Error(errorMessage);
+        }
+    },
+
+    dislikeComplaint: async (complaintId: string) => {
+        set({ isLoading: true, error: null });
+        try {
+            await axiosInstance.put(`/complaints/dislike/${complaintId}`);
+
+            set((state) => ({
+                userComplaints: state.userComplaints.map((complaint) =>
+                    complaint.complaintId === complaintId
+                        ? { ...complaint, likes: Math.max(0, complaint.likes - 1) }
+                        : complaint
+                ),
+                allComplaints: state.allComplaints.map((complaint) =>
+                    complaint.complaintId === complaintId
+                        ? { ...complaint, likes: Math.max(0, complaint.likes - 1) }
+                        : complaint
+                ),
+                currentComplaint: state.currentComplaint?.complaintId === complaintId
+                    ? { ...state.currentComplaint, likes: Math.max(0, state.currentComplaint.likes - 1) }
+                    : state.currentComplaint,
+                isLoading: false,
+            }));
+        } catch (error: any) {
+            const errorMessage = error.response?.data?.message || 'Failed to dislike complaint';
             set({ error: errorMessage, isLoading: false });
             throw new Error(errorMessage);
         }

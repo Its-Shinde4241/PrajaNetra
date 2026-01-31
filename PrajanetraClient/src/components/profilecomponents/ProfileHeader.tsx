@@ -2,7 +2,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { User, Mail, Calendar, Camera } from "lucide-react";
+import { User, Camera } from "lucide-react";
+import { Label } from "../ui/label";
 
 interface ProfileHeaderProps {
     user: {
@@ -27,8 +28,8 @@ export const ProfileHeader = ({ user }: ProfileHeaderProps) => {
     return (
         <div className="mb-6">
             <Card className="border-border/50 shadow-lg">
-                <CardContent className="pt-6">
-                    <div className="flex flex-col items-start gap-6 md:flex-row md:items-center">
+                <CardContent className="">
+                    <div className="flex  sm:flex-row  gap-6 md:flex-row items-center sm:items-center">
                         <div className="relative">
                             <Avatar className="h-24 w-24 ring-4 ring-primary/10">
                                 <AvatarImage src={user.profileImageUrl} alt={user.name} />
@@ -44,26 +45,30 @@ export const ProfileHeader = ({ user }: ProfileHeaderProps) => {
                                 <Camera className="h-4 w-4" />
                             </Button>
                         </div>
-                        <div className="flex-1 space-y-2">
-                            <div className="flex flex-col gap-2 md:flex-row md:items-center">
+                        <div className="flex-1 space-y-0">
+                            <div className="flex flex-col gap-2 items-center md:flex-row sm:items-start">
                                 <h1 className="text-2xl font-bold">{user.name}</h1>
                                 {user.googleId && (
                                     <Badge variant="secondary">Connected with Google</Badge>
                                 )}
                             </div>
-                            <p className="text-muted-foreground">{user.email}</p>
-                            <div className="text-muted-foreground flex flex-wrap gap-4 text-sm">
-                                <div className="flex items-center gap-1">
-                                    <Mail className="h-4 w-4" />
-                                    {user.email}
-                                </div>
-                                <div className="flex items-center gap-1">
-                                    <Calendar className="h-4 w-4" />
-                                    Joined {new Date(user.createdAt).toLocaleDateString()}
-                                </div>
+                            <p className="text-muted-foreground text-center sm:text-start">{user.email}</p>
+                            <div data-slot="info" className="text-muted-foreground flex flex-wrap justify-between text-sm sm:flex-row flex-col items-center">
                                 <div className="flex items-center gap-1">
                                     <User className="h-4 w-4" />
-                                    ID: {user.userId || "N/A"}
+                                    :&nbsp;{user.userId || "N/A"}
+                                </div>
+                                <div className="flex items-center justify-between">
+                                    <div className="space-x-0.5">
+                                        <Label className="text-base">Member Since</Label>
+                                        <p className="text-muted-foreground text-sm">
+                                            {new Date(user.createdAt).toLocaleDateString('en-US', {
+                                                year: 'numeric',
+                                                month: 'long',
+                                                day: 'numeric'
+                                            })}
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
                         </div>

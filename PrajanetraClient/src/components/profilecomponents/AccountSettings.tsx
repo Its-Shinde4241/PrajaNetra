@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
@@ -34,10 +34,7 @@ export const AccountSettings = ({ user, onLogout }: AccountSettingsProps) => {
         <div className="space-y-6">
             {/* Account Settings */}
             <Card className="border-border/50 shadow-lg">
-                <CardHeader>
-                    <CardTitle>Account Settings</CardTitle>
-                    <CardDescription>Manage your account information and preferences</CardDescription>
-                </CardHeader>
+
                 <CardContent className="space-y-6">
                     <div className="flex items-center justify-between">
                         <div className="space-y-1">
@@ -80,41 +77,15 @@ export const AccountSettings = ({ user, onLogout }: AccountSettingsProps) => {
                             </div>
                         </>
                     )}
-
-                    <Separator />
-                    <div className="flex items-center justify-between">
-                        <div className="space-y-1">
-                            <Label className="text-base">Email Address</Label>
-                            <p className="text-muted-foreground text-sm">{user.email}</p>
-                        </div>
-                    </div>
-
-                    <Separator />
-                    <div className="flex items-center justify-between">
-                        <div className="space-y-1">
-                            <Label className="text-base">Member Since</Label>
-                            <p className="text-muted-foreground text-sm">
-                                {new Date(user.createdAt).toLocaleDateString('en-US', {
-                                    year: 'numeric',
-                                    month: 'long',
-                                    day: 'numeric'
-                                })}
-                            </p>
-                        </div>
-                    </div>
                 </CardContent>
             </Card>
 
             {/* Logout Section */}
             <Card className="border-destructive/50">
-                <CardHeader>
-                    <CardTitle className="text-destructive">Sign Out</CardTitle>
-                    <CardDescription>Log out of your account</CardDescription>
-                </CardHeader>
                 <CardContent>
                     <div className="flex items-center justify-between">
                         <div className="space-y-1">
-                            <Label className="text-base">Logout</Label>
+                            <Label className="text-destructive">Logout</Label>
                             <p className="text-muted-foreground text-sm">
                                 Sign out from your current session
                             </p>

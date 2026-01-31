@@ -41,6 +41,9 @@ public class Complaint {
     private String description;
 
     @Setter
+    private long likes = 0;
+
+    @Setter
     @ElementCollection
     @CollectionTable(name = "complaint_images", joinColumns = @JoinColumn(name = "complaint_id"))
     @Column(name = "image_url")

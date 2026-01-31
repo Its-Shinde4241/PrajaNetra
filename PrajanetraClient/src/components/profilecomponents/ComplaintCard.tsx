@@ -1,12 +1,14 @@
-import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { FileText } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Calendar, Maximize2, Camera } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface ComplaintCardProps {
     complaint: {
         complaintId: string;
         title: string;
         description: string;
+        likes: number;
         status: string;
         category: string;
         createdAt: string;
@@ -15,57 +17,90 @@ interface ComplaintCardProps {
 }
 
 export const ComplaintCard = ({ complaint }: ComplaintCardProps) => {
+    const navigate = useNavigate();
+
+    const handleTrack = () => {
+        navigate("/track", { state: { complaintId: complaint.complaintId } });
+    };
+
+    const formatDate = (dateStr: string) => {
+        return new Date(dateStr).toLocaleDateString('en-US', {
+            month: 'long',
+            day: 'numeric',
+            year: 'numeric',
+        });
+    };
+
     return (
-        <Card className="border-border/30 hover:border-primary/50 transition-colors cursor-pointer py-3">
-            <CardContent className="pt-2">
-                <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-2">
-                            <FileText className="w-4 h-4 text-muted-foreground" />
-                            <h3 className="font-semibold truncate">{complaint.title}</h3>
-                        </div>
-                        <p className="text-sm text-muted-foreground mb-2 line-clamp-2">
-                            {complaint.description}
-                        </p>
-                        <div className="flex flex-wrap items-center gap-2 text-sm">
-                            <Badge variant="outline">{complaint.status}</Badge>
-                            <Badge variant="secondary">{complaint.category}</Badge>
-                        </div>
-                    </div>
-                    {complaint.imageUrls && complaint.imageUrls.length > 0 && (
-                        <div className="flex flex-col gap-2 shrink-0">
-                            <div className="flex gap-1">
-                                {complaint.imageUrls.slice(0, 2).map((imageUrl, index) => (
-                                    <div
-                                        key={index}
-                                        className="w-16 h-16 rounded-md overflow-hidden border border-border"
-                                    >
-                                        <img
-                                            src={imageUrl}
-                                            alt={`Complaint image ${index + 1}`}
-                                            className="w-full h-full object-cover"
-                                        />
-                                    </div>
-                                ))}
-                                {complaint.imageUrls.length > 2 && (
-                                    <div className="w-16 h-16 rounded-md overflow-hidden border border-border bg-muted flex items-center justify-center">
-                                        <span className="text-xs font-medium text-muted-foreground">
-                                            +{complaint.imageUrls.length - 2}
-                                        </span>
-                                    </div>
-                                )}
-                            </div>
-                            <span className="text-muted-foreground text-xs text-center">
-                                {new Date(complaint.createdAt).toLocaleDateString('en-US', {
-                                    year: 'numeric',
-                                    month: 'long',
-                                    day: 'numeric'
-                                })}
-                            </span>
+        <div className="flex flex-col sm:flex-row gap-4 rounded-lg border bg-card p-3 hover:border-primary/50 transition-colors">
+            {/* Image Thumbnail */}
+            {complaint.imageUrls && complaint.imageUrls.length > 0 ? (
+                <div className="aspect-video sm:aspect-square sm:h-24 sm:w-24 shrink-0 overflow-hidden rounded-md relative">
+                    <img
+                        src={complaint.imageUrls[0]}
+                        alt={complaint.title}
+                        className="h-full w-full object-cover"
+                    />
+                    {complaint.imageUrls.length > 1 && (
+                        <div className="absolute bottom-1 right-1 flex items-center gap-0.5 rounded-md bg-black/70 px-1.5 py-0.5 text-[10px] font-medium text-white">
+                            <Camera className="h-2.5 w-2.5" />
+                            {complaint.imageUrls.length}
                         </div>
                     )}
                 </div>
-            </CardContent>
-        </Card>
+            ) : null}
+
+            {/* Content */}
+            <div className="flex flex-1 flex-col justify-between min-w-0">
+                <div>
+                    <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1 min-w-0">
+                            {complaint.category && (
+                                <p className="mb-0.5 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+                                    {complaint.category}
+                                </p>
+                            )}
+
+                            <h1 className="line-clamp-2 text-sm font-bold leading-tight">
+                                {complaint.title}
+                            </h1>
+                        </div>
+                        <button
+                            onClick={handleTrack}
+                            className="shrink-0 p-1 rounded-md hover:bg-muted transition-colors text-muted-foreground hover:text-foreground cursor-pointer"
+                            aria-label="Track complaint"
+                        >
+                            <Maximize2 className="h-4 w-4" />
+                        </button>
+                    </div>
+
+                    {complaint.description && (
+                        <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
+                            {complaint.description}
+                        </p>
+                    )}
+
+                    <div className="mt-1.5 flex flex-wrap gap-1">
+                        <Badge variant="outline" className="text-[10px] px-2 py-0">
+                            {complaint.status}
+                        </Badge>
+                    </div>
+                </div>
+
+                {/* Footer */}
+                <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <span className="flex items-center gap-1">
+                            <Calendar className="h-3 w-3" />
+                            {formatDate(complaint.createdAt)}
+                        </span>
+                    </div>
+
+                    <Button size="sm" onClick={handleTrack}>
+                        Track
+                    </Button>
+                </div>
+            </div>
+        </div>
     );
 };

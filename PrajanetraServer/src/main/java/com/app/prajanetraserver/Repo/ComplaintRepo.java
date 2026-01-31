@@ -6,6 +6,7 @@ import com.app.prajanetraserver.Model.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -44,4 +45,12 @@ public interface ComplaintRepo extends JpaRepository<Complaint, UUID> {
     );
 
 
+    @Modifying
+    @Query("update Complaint set likes=likes+1 where complaintId= :complaintId")
+    void incrementLikes(@Param("complaintId") String complaintId);
+
+
+    @Modifying
+    @Query("update Complaint set likes=likes-1 where complaintId= :complaintId and likes !=0")
+    void decrementLikes(@Param("complaintId") String complaintId);
 }
