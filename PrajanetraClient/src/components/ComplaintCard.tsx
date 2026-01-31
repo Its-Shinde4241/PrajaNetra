@@ -43,50 +43,7 @@ export interface ComplaintCardProps {
     }
 }
 
-/**
- * A complaint card component with multiple layout variants.
- * Supports default, compact, horizontal, and covered (overlay) styles.
- *
- * Features:
- * - Four layout variants (default, compact, horizontal, covered)
- * - Image carousel with navigation
- * - Status badge with color coding
- * - Category and location display
- * - Like action button
- * - Responsive design
- *
- * @component
- * @example
- * ```tsx
- * <ComplaintCard
- *   data={{
- *     complaint: {
- *       complaintId: "123",
- *       title: "Pothole on Main Street",
- *       description: "Large pothole causing traffic issues",
- *       category: "Road & Infrastructure",
- *       location: "Main Street, Sector 5",
- *       status: "IN_PROGRESS",
- *       likes: 45,
- *       imageUrls: ["url1", "url2"],
- *       createdAt: "2024-01-15",
- *       updatedAt: "2024-01-20"
- *     }
- *   }}
- *   actions={{
- *     onViewDetails: (complaint) => console.log("View:", complaint.complaintId),
- *     onLike: (id) => console.log("Like:", id)
- *   }}
- *   appearance={{
- *     variant: "default",
- *     showImages: true,
- *     showStatus: true,
- *     showCategory: true,
- *     showLikes: true
- *   }}
- * />
- * ```
- */
+
 export function ComplaintCard({ data, actions, appearance }: ComplaintCardProps) {
     const complaint = data?.complaint
     if (!complaint) return null
