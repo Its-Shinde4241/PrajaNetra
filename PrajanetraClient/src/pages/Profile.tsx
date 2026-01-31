@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { ProfileHeader } from "@/components/profilecomponents/ProfileHeader";
 import { AccountSettings } from "@/components/profilecomponents/AccountSettings";
 import { ComplaintsSection } from "@/components/profilecomponents/ComplaintsSection";
+import { Loader2 } from "lucide-react";
 
 const Profile = () => {
     const { user, logout, isAuthenticated } = useUserStore();
@@ -43,9 +44,21 @@ const Profile = () => {
         navigate("/");
     };
 
+    // Show loader while initial data is loading
+    if (isLoading && userComplaints.length === 0) {
+        return (
+            <div className="min-h-screen bg-linear-to-b from-background/80 via-background/70 to-background/60 flex items-center justify-center">
+                <div className="flex flex-col items-center gap-4">
+                    <Loader2 className="h-12 w-12 animate-spin text-primary" />
+                    <p className="text-sm text-muted-foreground">Loading profile...</p>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="min-h-screen bg-linear-to-b from-background/80 via-background/70 to-background/60">
-            <div className=" px-6 sm:px-10 md:px-10 lg:px-72 pt-18 pb-12 backdrop-blur-sm">
+            <div className="px-6 sm:px-10 md:px-10 lg:px-72 pt-18 pb-12">
 
                 {/* Profile Header */}
                 <ProfileHeader user={user} />
@@ -70,7 +83,7 @@ const Profile = () => {
                                 isLoading={isLoading}
                                 onRefresh={handleRefreshComplaints}
                                 onNewComplaint={() => navigate("/complaint")}
-                                onViewAll={() => navigate("/track")}
+                                onViewAll={() => navigate("/my-complaints")}
                             />
                         </TabsContent>
                     </Tabs>

@@ -103,7 +103,7 @@ const FileComplaint = () => {
   return (
     <div className="min-h-screen relative">
       {/* Static blur gradient background overlay - NO ANIMATIONS */}
-      <div className="absolute inset-0 bg-linear-to-b from-background/80 via-background/70 to-background/60  " />
+      <div className="absolute inset-0  " />
 
       {/* Content - WITH ANIMATIONS */}
       <motion.div

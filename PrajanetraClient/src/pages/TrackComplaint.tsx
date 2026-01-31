@@ -4,11 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Search, CheckCircle2, Clock, AlertCircle, ArrowRight } from "lucide-react";
+import { Search, AlertCircle } from "lucide-react";
 import { useLocation } from "react-router-dom";
 import { useComplaintStore } from "@/store/complaintStore";
 import { toast } from "sonner";
 import { ComplaintCard } from "@/components/ComplaintCard";
+import { Timeline, generateTimelineSteps } from "@/components/Timeline";
 
 const TrackComplaint = () => {
   const location = useLocation();
@@ -49,27 +50,8 @@ const TrackComplaint = () => {
     }
   };
 
-  // Helper function to generate timeline from status
-  const generateTimeline = (currentStatus: string) => {
-    const statuses = [
-      { status: "SUBMITTED", label: "Submitted" },
-      { status: "ACKNOWLEDGED", label: "Acknowledged" },
-      { status: "UNDER_REVIEW", label: "Under Review" },
-      { status: "IN_PROGRESS", label: "In Progress" },
-      { status: "RESOLVED", label: "Resolved" },
-    ];
-
-    const currentIndex = statuses.findIndex(s => s.status === currentStatus);
-
-    return statuses.map((item, index) => ({
-      status: item.label,
-      date: index <= currentIndex ? "Completed" : "Pending",
-      completed: index <= currentIndex,
-    }));
-  };
-
   return (
-    <div className="min-h-screen bg-linear-to-b from-background/80 via-background/70 to-background/60">
+    <div className="min-h-screen ">
       {/* Static blur gradient background overlay */}
       <div className="absolute inset-0 " />
 
@@ -267,14 +249,7 @@ const TrackComplaint = () => {
                   }}
                 >
                   <ComplaintCard
-                    data={{ complaint: currentComplaint }}
-                    appearance={{
-                      variant: "default",
-                      showImages: true,
-                      showStatus: true,
-                      showCategory: true,
-                      showLikes: true
-                    }}
+                    complaint={currentComplaint}
                   />
                 </motion.div>
 
@@ -309,96 +284,18 @@ const TrackComplaint = () => {
                     </motion.div>
 
                     <CardContent>
-                      <div className="space-y-4">
-                        {(() => {
-                          const timeline = generateTimeline(currentComplaint.status);
-                          const lastCompletedIndex = timeline.map((t, i) => t.completed ? i : -1).filter(i => i !== -1).pop() ?? -1;
-
-                          return timeline.map((item, index) => (
-                            <motion.div
-                              key={index}
-                              className="flex items-start space-x-4"
-                              initial={{ x: -20, opacity: 0 }}
-                              animate={{ x: 0, opacity: 1 }}
-                              exit={{ x: -10, opacity: 0 }}
-                              transition={{
-                                duration: 0.4,
-                                ease: "easeOut",
-                                delay: 2.0 + index * 0.1
-                              }}
-                            >
-                              <div className="relative">
-                                <motion.div
-                                  className={`w-8 h-8 rounded-full flex items-center justify-center ${item.completed
-                                    ? "bg-primary text-primary-foreground"
-                                    : "bg-muted text-muted-foreground"
-                                    }`}
-                                  initial={{ scale: 0.8, opacity: 0 }}
-                                  animate={{ scale: 1, opacity: 1 }}
-                                  transition={{
-                                    duration: 0.3,
-                                    ease: "easeOut",
-                                    delay: 2.1 + index * 0.1
-                                  }}
-                                >
-                                  {item.completed ? (
-                                    <CheckCircle2 className="w-4 h-4" />
-                                  ) : (
-                                    <Clock className="w-4 h-4" />
-                                  )}
-                                </motion.div>
-                                {index < timeline.length - 1 && (
-                                  <motion.div
-                                    className={`absolute left-4 top-8 w-0.5 h-8 ${item.completed ? "bg-primary" : "bg-muted"
-                                      }`}
-                                    initial={{ height: 0, opacity: 0 }}
-                                    animate={{ height: 32, opacity: 1 }}
-                                    transition={{
-                                      duration: 0.3,
-                                      ease: "easeOut",
-                                      delay: 2.2 + index * 0.1
-                                    }}
-                                  />
-                                )}
-                              </div>
-                              <motion.div
-                                className="flex-1 pt-1"
-                                initial={{ y: 10, opacity: 0 }}
-                                animate={{ y: 0, opacity: 1 }}
-                                transition={{
-                                  duration: 0.3,
-                                  ease: "easeOut",
-                                  delay: 2.2 + index * 0.1
-                                }}
-                              >
-                                <div className="flex items-center justify-between mb-1">
-                                  <p
-                                    className={`font-medium ${item.completed ? "text-foreground" : "text-muted-foreground"
-                                      }`}
-                                  >
-                                    {item.status}
-                                  </p>
-                                  <p className="text-sm text-muted-foreground">{item.date}</p>
-                                </div>
-                                {item.completed && index === lastCompletedIndex && (
-                                  <motion.p
-                                    className="text-sm text-primary flex items-center mt-1"
-                                    initial={{ x: -10, opacity: 0 }}
-                                    animate={{ x: 0, opacity: 1 }}
-                                    transition={{
-                                      duration: 0.3,
-                                      ease: "easeOut",
-                                      delay: 2.3 + index * 0.1
-                                    }}
-                                  >
-                                    Current Stage <ArrowRight className="w-3 h-3 ml-1" />
-                                  </motion.p>
-                                )}
-                              </motion.div>
-                            </motion.div>
-                          ));
-                        })()}
-                      </div>
+                      <motion.div
+                        initial={{ y: 20, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        exit={{ y: -10, opacity: 0 }}
+                        transition={{
+                          duration: 0.5,
+                          ease: "easeOut",
+                          delay: 2.0
+                        }}
+                      >
+                        <Timeline steps={generateTimelineSteps(currentComplaint.status)} />
+                      </motion.div>
                     </CardContent>
                   </Card>
                 </motion.div>

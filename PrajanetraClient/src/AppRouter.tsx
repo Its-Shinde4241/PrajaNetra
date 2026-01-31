@@ -10,6 +10,7 @@ import AllReports from "./pages/AllComplaints";
 import Signup from "./pages/Signup";
 import Login from "./pages/Login";
 import Profile from "./pages/Profile";
+import MyAllComplaints from "./pages/MyAllComplaints";
 import OAuthCallback from "./pages/OAuthCallback";
 import { useEffect } from "react";
 
@@ -44,7 +45,7 @@ export function AppRouter() {
     const location = useLocation();
 
     return (
-        <div className="relative overflow-hidden min-h-[calc(100vh-4rem)]">
+        <div className="relative overflow-hidden min-h-screen backdrop-blur-sm bg-linear-to-b from-background/70 via-background/60 to-background/50 ">
             <AnimatePresence mode="wait">
                 {/* key MUST change when route changes */}
                 <Routes location={location} key={location.pathname}>
@@ -75,6 +76,14 @@ export function AppRouter() {
                         element={
                             <ProtectedRoute>
                                 <Profile />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/my-complaints"
+                        element={
+                            <ProtectedRoute>
+                                <MyAllComplaints />
                             </ProtectedRoute>
                         }
                     />

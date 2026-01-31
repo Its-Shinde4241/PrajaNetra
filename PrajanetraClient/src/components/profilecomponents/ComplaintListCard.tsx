@@ -16,7 +16,7 @@ interface ComplaintCardProps {
     };
 }
 
-export const ComplaintCard = ({ complaint }: ComplaintCardProps) => {
+export const ComplaintListCard = ({ complaint }: ComplaintCardProps) => {
     const navigate = useNavigate();
 
     const handleTrack = () => {

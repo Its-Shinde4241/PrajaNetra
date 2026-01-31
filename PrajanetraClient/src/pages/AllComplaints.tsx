@@ -130,7 +130,7 @@ const AllReports = () => {
   return (
     <div className="min-h-screen relative">
       {/* Static blur gradient background overlay - NO ANIMATIONS */}
-      <div className="absolute inset-0 bg-linear-to-br from-background/80 via-background/70 to-background/60" />
+      <div className="absolute " />
 
       {/* Content - WITH ANIMATIONS */}
       <motion.div

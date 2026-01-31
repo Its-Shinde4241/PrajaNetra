@@ -1,7 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { FileText, RefreshCw, CheckCircle2 } from "lucide-react";
-import { ComplaintCard } from "./ComplaintCard";
+import { ComplaintListCard } from "./ComplaintListCard";
 import { ComplaintStatus } from "@/store/complaintStore";
 
 interface ComplaintsSectionProps {
@@ -82,7 +82,7 @@ export const ComplaintsSection = ({
                     <div className="space-y-4">
                         {userComplaints && userComplaints.length > 0 ? (
                             userComplaints.map((complaint) => (
-                                <ComplaintCard key={complaint.complaintId} complaint={complaint} />
+                                <ComplaintListCard key={complaint.complaintId} complaint={complaint} />
                             ))
                         ) : (
                             <div className="text-center py-12">

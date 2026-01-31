@@ -131,7 +131,7 @@ export const useComplaintStore = create<ComplaintStore>((set) => ({
         try {
             const response = await axiosInstance.get(`/complaints/${complaintId}`);
             set({
-                currentComplaint: response.data,
+                currentComplaint: response.data.complaint,
                 isLoading: false
             });
         } catch (error: any) {

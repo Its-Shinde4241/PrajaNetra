@@ -55,7 +55,7 @@ export function NavUser({
                 </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent
-                className=" min-w-56 rounded-lg backdrop-blur-md bg-transparent border border-primary/15"
+                className=" min-w-56 rounded-lg "
                 side="bottom"
                 align="end"
                 sideOffset={15}
@@ -80,7 +80,7 @@ export function NavUser({
                         <BadgeCheck />
                         Profile
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => navigate("/track")}>
+                    <DropdownMenuItem onClick={() => navigate("/my-complaints")}>
                         <CreditCard />
                         My Complaints
                     </DropdownMenuItem>
