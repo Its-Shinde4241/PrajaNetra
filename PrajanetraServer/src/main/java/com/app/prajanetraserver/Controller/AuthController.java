@@ -1,14 +1,19 @@
 package com.app.prajanetraserver.Controller;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.app.prajanetraserver.DTO.UserResponse;
+import com.app.prajanetraserver.Service.FileStorageService;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import com.app.prajanetraserver.DTO.LoginRequest;
@@ -19,6 +24,7 @@ import com.app.prajanetraserver.Service.JwtService;
 import com.app.prajanetraserver.Service.UserService;
 
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -27,11 +33,13 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final UserService userService;
     private final JwtService jwtService;
+    private final FileStorageService fileStorageService;
 
-    AuthController(UserService userService, JwtService jwtService, AuthenticationManager authenticationManager) {
+    AuthController(UserService userService, JwtService jwtService, AuthenticationManager authenticationManager, FileStorageService fileStorageService) {
         this.userService = userService;
         this.jwtService = jwtService;
         this.authenticationManager = authenticationManager;
+        this.fileStorageService = fileStorageService;
     }
 
     @PostMapping("/login")
@@ -95,6 +103,53 @@ public class AuthController {
     @GetMapping("/google/login")
     public void redirectToGoogle(HttpServletResponse response) throws IOException {
         response.sendRedirect("/oauth2/authorization/google");
+    }
+
+    @PutMapping(value = "/user/update", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> updateUser(
+            @RequestPart(value = "name", required = false) String name,
+            @RequestPart(value = "profileImage", required = false) MultipartFile profileImage,
+            @AuthenticationPrincipal MyUserDetails userDetails) {
+
+        if (userDetails == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not authenticated");
+        }
+
+        try {
+            User user = userService.findByEmail(userDetails.getUsername())
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+
+            // Update name if provided
+            if (name != null && !name.isBlank()) {
+                user.setName(name);
+            }
+
+            // Upload image to Supabase and update URL if provided
+            if (profileImage != null && !profileImage.isEmpty()) {
+                String imageUrl = fileStorageService.storeProfileImage(profileImage, user.getUserId());
+                user.setProfileImageUrl(imageUrl);
+            }
+
+            user.setUpdatedAt(LocalDateTime.now());
+
+            User updatedUser = userService.updateUser(user);
+            Map<String, Object> response = new HashMap<>();
+            UserResponse updatedUserResponse = userService.getUserResponse(updatedUser);
+            response.put("message", "User updated successfully");
+            response.put("user", updatedUserResponse);
+
+            return ResponseEntity.ok(response);
+
+        } catch (IllegalArgumentException e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("error", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(response);
+        }
     }
 
     @GetMapping("/me")

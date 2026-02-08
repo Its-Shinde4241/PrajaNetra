@@ -100,9 +100,7 @@ export function AppRouter() {
                     <Route
                         path="/"
                         element={
-                            <ProtectedRoute>
-                                <Index />
-                            </ProtectedRoute>
+                            <Index />
                         }
                     />
                     <Route

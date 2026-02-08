@@ -6,6 +6,8 @@ import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { LogOut } from "lucide-react";
+import { useUserStore } from "@/store/userStore";
+import { toast } from "sonner";
 
 interface AccountSettingsProps {
     user: {
@@ -19,16 +21,22 @@ interface AccountSettingsProps {
 export const AccountSettings = ({ user, onLogout }: AccountSettingsProps) => {
     const [isEditing, setIsEditing] = useState(false);
     const [editedName, setEditedName] = useState(user.name);
+    const [isSaving, setIsSaving] = useState(false);
+    const { updateProfile } = useUserStore();
 
-    const handleSave = () => {
-        // TODO: Implement API call to update user profile
-        setIsEditing(false);
+    const handleNameUpdate = async () => {
+        try {
+            setIsSaving(true);
+            await updateProfile(editedName);
+            setIsEditing(false);
+            toast.success("Name updated successfully!");
+        } catch (error) {
+            console.error("Failed to update profile:", error);
+            toast.error("Failed to update Name. Please try again.");
+        } finally {
+            setIsSaving(false);
+        }
     };
-
-    // const handleCancel = () => {
-    //     setEditedName(user.name);
-    //     setIsEditing(false);
-    // };
 
     return (
         <div className="space-y-6">
@@ -71,7 +79,7 @@ export const AccountSettings = ({ user, onLogout }: AccountSettingsProps) => {
                                         onChange={(e) => setEditedName(e.target.value)}
                                     />
                                 </div>
-                                <Button onClick={handleSave}>
+                                <Button onClick={handleNameUpdate} disabled={isSaving}>
                                     Save Changes
                                 </Button>
                             </div>

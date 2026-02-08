@@ -36,6 +36,7 @@ interface UserStore {
     clearError: () => void;
     setUser: (user: User, token: string) => void;
     validateToken: () => Promise<void>;
+    updateProfile: (name: string, profileImageUrl?: File) => Promise<void>;
 }
 
 export const useUserStore = create<UserStore>()(
@@ -170,6 +171,40 @@ export const useUserStore = create<UserStore>()(
                         isAuthenticated: false,
                         error: null,
                     });
+                }
+            },
+            updateProfile: async (name: string, profileImage?: File) => {
+                const { user, token } = get();
+                if (!token || !user) {
+                    throw new Error('User not authenticated');
+                }
+                try {
+                    const formData = new FormData();
+
+                    if (name && name !== user.name) {
+                        formData.append('name', name);
+                    }
+
+                    if (profileImage) {
+                        formData.append('profileImage', profileImage);
+                    }
+
+                    const response = await axiosInstance.put<{ message: string; user: User }>(
+                        '/auth/user/update',
+                        formData,
+                        {
+                            headers: {
+                                'Content-Type': 'multipart/form-data',
+                            },
+                        }
+                    );
+
+                    // Update state directly - no need to return
+                    set({ user: response.data.user });
+
+                } catch (error: any) {
+                    const errorMessage = error.response?.data?.error || error.response?.data?.message || error.message || 'Profile update failed';
+                    throw new Error(errorMessage);
                 }
             },
         }),
