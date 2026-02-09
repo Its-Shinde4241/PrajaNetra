@@ -53,4 +53,12 @@ public interface ComplaintRepo extends JpaRepository<Complaint, UUID> {
     @Modifying
     @Query("update Complaint set likes=likes-1 where complaintId= :complaintId and likes !=0")
     void decrementLikes(@Param("complaintId") String complaintId);
+
+    @Modifying
+    @Query("""
+            update Complaint
+            set status = :newStatus
+            where complaintId = :complaintId
+            """)
+    void changeStatus(String complaintId, ComplaintStatus newStatus);
 }
