@@ -15,7 +15,9 @@ public class ComplaintResponse {
     private String userId;
     private String title;
     private String category;
-    private String location;
+    private Double latitude;
+    private Double longitude;
+    private String formattedAddress;
     private String description;
     private long likes;
     private List<String> imageUrls;

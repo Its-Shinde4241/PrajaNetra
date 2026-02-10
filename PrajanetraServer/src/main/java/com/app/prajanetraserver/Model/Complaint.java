@@ -33,8 +33,16 @@ public class Complaint {
     private String category;
 
     @Setter
-    @Column(nullable = false)
-    private String location;
+    @Column(name = "latitude")
+    private Double latitude;
+
+    @Setter
+    @Column(name = "longitude")
+    private Double longitude;
+
+    @Setter
+    @Column(name = "formatted_address")
+    private String formattedAddress;
 
     @Setter
     @Column(length = 2000, nullable = false)

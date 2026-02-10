@@ -55,7 +55,7 @@ public class ComplaintController {
             if (request.getCategory() == null || request.getCategory().trim().isEmpty()) {
                 return ResponseEntity.badRequest().body(Map.of("message", "Category is required"));
             }
-            if (request.getLocation() == null || request.getLocation().trim().isEmpty()) {
+            if (request.getFormattedAddress() == null || request.getFormattedAddress().trim().isEmpty()) {
                 return ResponseEntity.badRequest().body(Map.of("message", "Location is required"));
             }
             if (request.getDescription() == null || request.getDescription().trim().isEmpty()) {

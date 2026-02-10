@@ -35,7 +35,9 @@ public class ComplaintService {
         complaint.setComplaintId(complaintId);
         complaint.setUser(userRepo.findUserByUserId(request.getUserId()).orElseThrow());
         complaint.setCategory(request.getCategory());
-        complaint.setLocation(request.getLocation());
+        complaint.setLatitude(request.getLatitude());
+        complaint.setLongitude(request.getLongitude());
+        complaint.setFormattedAddress(request.getFormattedAddress());
         complaint.setDescription(request.getDescription());
         complaint.setImageUrls(imageUrls);
         complaint.setStatus(ComplaintStatus.SUBMITTED);
@@ -81,7 +83,9 @@ public class ComplaintService {
                 complaint.getUser().getUserId(),
                 complaint.getTitle(),
                 complaint.getCategory(),
-                complaint.getLocation(),
+                complaint.getLatitude(),
+                complaint.getLongitude(),
+                complaint.getFormattedAddress(),
                 complaint.getDescription(),
                 complaint.getLikes(),
                 complaint.getImageUrls(),

@@ -16,7 +16,9 @@ export interface Complaint {
     userId: string;
     title: string;
     category: string;
-    location: string;
+    latitude: number;
+    longitude: number;
+    formattedAddress: string;
     description: string;
     likes: number;
     status: ComplaintStatus;
@@ -29,7 +31,9 @@ export interface CreateComplaintData {
     userId: string;
     title: string;
     category: string;
-    location: string;
+    latitude: number;
+    longitude: number;
+    formattedAddress: string;
     description: string;
     images?: File[];
 }
@@ -100,7 +104,9 @@ export const useComplaintStore = create<ComplaintStore>((set) => ({
                 userId: data.userId,
                 title: data.title,
                 category: data.category,
-                location: data.location,
+                latitude: data.latitude,
+                longitude: data.longitude,
+                formattedAddress: data.formattedAddress,
                 description: data.description,
             };
             formData.append('data', JSON.stringify(complaintData));

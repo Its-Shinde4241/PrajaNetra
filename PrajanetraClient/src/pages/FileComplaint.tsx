@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "motion/react";
 import { useComplaintStore } from "@/store/complaintStore";
 import { useUserStore } from "@/store/userStore";
-import { Button } from "@/components/ui/button";
+import { AnimatedButton } from "@/components/ui/animated-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -16,18 +16,21 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { FileUpload } from "@/components/ui/file-upload";
+import { LocationPicker } from "@/components/LocationPicker";
 import { toast } from "sonner";
 import { MapPin, FileText } from "lucide-react";
 
 const FileComplaint = () => {
   const navigate = useNavigate();
-  const { createComplaint, isLoading } = useComplaintStore();
+  const { createComplaint } = useComplaintStore();
   const { user, isAuthenticated } = useUserStore();
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [buttonStatus, setButtonStatus] = useState<"idle" | "loading" | "success">("idle");
   const [formData, setFormData] = useState({
     title: "",
     category: "",
-    location: "",
+    latitude: 0,
+    longitude: 0,
+    formattedAddress: "",
     description: "",
     images: [] as File[],
   });
@@ -67,18 +70,21 @@ const FileComplaint = () => {
       return;
     }
 
-    setIsSubmitting(true);
+    setButtonStatus("loading");
 
     try {
       const response = await createComplaint({
         userId: user.userId,
         title: formData.title,
         category: formData.category,
-        location: formData.location,
+        latitude: formData.latitude,
+        longitude: formData.longitude,
+        formattedAddress: formData.formattedAddress,
         description: formData.description,
         images: formData.images,
       });
 
+      setButtonStatus("success");
       toast.success("Complaint filed successfully!", {
         description: `Your complaint ID is ${response.complaintId}. You can track it anytime.`,
       });
@@ -86,13 +92,12 @@ const FileComplaint = () => {
       // Navigate to track page after a delay
       setTimeout(() => {
         navigate("/track", { state: { complaintId: response.complaintId } });
-      }, 1500);
+      }, 2000);
     } catch (error: any) {
+      setButtonStatus("idle");
       toast.error("Failed to file complaint", {
         description: error.message || "Please try again later",
       });
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -258,18 +263,25 @@ const FileComplaint = () => {
                         delay: 1.1
                       }}
                     >
-                      <Label htmlFor="location" className="flex items-center space-x-2">
+                      <Label className="flex items-center space-x-2">
                         <MapPin className="w-4 h-4" />
-                        <span>Location/Address</span>
+                        <span>Location</span>
                         <span className="text-destructive">*</span>
                       </Label>
-                      <Input
-                        id="location"
-                        placeholder="Enter the location of the issue"
-                        required
-                        value={formData.location}
-                        onChange={(e) => handleChange("location", e.target.value)}
-                        className="transition-all duration-300 focus:scale-105 hover:shadow-md"
+                      <LocationPicker
+                        onLocationSelect={(data) => {
+                          setFormData((prev) => ({
+                            ...prev,
+                            latitude: data.latitude,
+                            longitude: data.longitude,
+                            formattedAddress: data.formattedAddress,
+                          }));
+                        }}
+                        initialPosition={
+                          formData.latitude && formData.longitude
+                            ? { latitude: formData.latitude, longitude: formData.longitude }
+                            : undefined
+                        }
                       />
                     </motion.div>
 
@@ -334,35 +346,14 @@ const FileComplaint = () => {
                       delay: 1.4
                     }}
                   >
-                    <motion.div
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      transition={{ duration: 0.2 }}
-                    >
-                      <Button
-                        type="submit"
-                        size="lg"
-                        className="w-full relative overflow-hidden"
-                        disabled={isSubmitting || isLoading}
-                      >
-                        <motion.span
-                          animate={isSubmitting ? { opacity: 0 } : { opacity: 1 }}
-                          transition={{ duration: 0.2 }}
-                        >
-                          {isSubmitting ? "Submitting..." : "Submit Complaint"}
-                        </motion.span>
-                        {isSubmitting && (
-                          <motion.div
-                            className="absolute inset-0 flex items-center justify-center"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ duration: 0.2 }}
-                          >
-                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                          </motion.div>
-                        )}
-                      </Button>
-                    </motion.div>
+                    <AnimatedButton
+                      type="submit"
+                      status={buttonStatus}
+                      idleText="Submit Complaint"
+                      loadingText="Submitting..."
+                      successText="Success!"
+                      className="h-11"
+                    />
                   </motion.div>
                 </form>
               </CardContent>
