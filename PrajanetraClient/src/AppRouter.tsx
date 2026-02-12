@@ -12,6 +12,9 @@ import Login from "./pages/Login";
 import Profile from "./pages/Profile";
 import MyAllComplaints from "./pages/MyAllComplaints";
 import OAuthCallback from "./pages/OAuthCallback";
+import AdminDashboard from "./pages/AdminDashboard";
+import ComplaintsManagement from "./pages/ComplaintsManagement";
+import UserManagement from "./pages/UserManagement";
 import { useEffect } from "react";
 
 // Protected Route Component - Only for authenticated users
@@ -24,6 +27,28 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
     if (!isAuthenticated) {
         return <Navigate to="/login" replace />;
+    }
+
+    return <>{children}</>;
+}
+
+// Admin Only Route Component - Only for authenticated admin/staff users
+function AdminRoute({ children }: { children: React.ReactNode }) {
+    const { isAuthenticated, user, validateToken } = useUserStore();
+
+    useEffect(() => {
+        validateToken();
+    }, [validateToken]);
+
+    if (!isAuthenticated) {
+        return <Navigate to="/login" replace />;
+    }
+
+    // Check if user has ADMIN or STAFF role
+    const isAdmin = user?.roles?.includes("ADMIN") || user?.roles?.includes("STAFF");
+
+    if (!isAdmin) {
+        return <Navigate to="/" replace />;
     }
 
     return <>{children}</>;
@@ -93,6 +118,32 @@ export function AppRouter() {
                             <ProtectedRoute>
                                 <FileComplaint />
                             </ProtectedRoute>
+                        }
+                    />
+
+                    {/* Admin Only Routes - Require admin/staff role */}
+                    <Route
+                        path="/admin/dashboard"
+                        element={
+                            <AdminRoute>
+                                <AdminDashboard />
+                            </AdminRoute>
+                        }
+                    />
+                    <Route
+                        path="/admin/complaints"
+                        element={
+                            <AdminRoute>
+                                <ComplaintsManagement />
+                            </AdminRoute>
+                        }
+                    />
+                    <Route
+                        path="/admin/users"
+                        element={
+                            <AdminRoute>
+                                <UserManagement />
+                            </AdminRoute>
                         }
                     />
 

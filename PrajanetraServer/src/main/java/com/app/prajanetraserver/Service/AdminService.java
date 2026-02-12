@@ -31,8 +31,8 @@ public class AdminService {
         this.userService = userService;
     }
 
+    @Transactional
     public void changeComplaintStatus(String complaintId, ComplaintStatus newStatus) {
-
         complaintRepo.changeStatus(complaintId, newStatus);
     }
 
@@ -52,6 +52,7 @@ public class AdminService {
 
     public List<UserResponse> getAllUsers() {
         return userRepo.findAll().stream()
+                .filter(user -> !user.getRoles().contains(Role.ADMIN))
                 .map(userService::getUserResponse)
                 .collect(Collectors.toList());
     }
@@ -80,7 +81,7 @@ public class AdminService {
 
     public List<UserResponse> getAllRegularUsers() {
         return userRepo.findAll().stream()
-                .filter(user -> !user.getRoles().contains(Role.MUNICIPAL_STAFF))
+                .filter(user -> !user.getRoles().contains(Role.MUNICIPAL_STAFF) && !user.getRoles().contains(Role.ADMIN))
                 .map(userService::getUserResponse)
                 .collect(Collectors.toList());
     }
@@ -269,7 +270,7 @@ public class AdminService {
         String lowerKeyword = keyword.toLowerCase();
         return complaintRepo.findAll().stream()
                 .filter(c -> c.getTitle().toLowerCase().contains(lowerKeyword)
-                || c.getDescription().toLowerCase().contains(lowerKeyword))
+                        || c.getDescription().toLowerCase().contains(lowerKeyword))
                 .map(this::mapToComplaintResponse)
                 .collect(Collectors.toList());
     }

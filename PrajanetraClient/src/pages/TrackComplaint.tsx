@@ -57,13 +57,13 @@ const TrackComplaint = () => {
 
       {/* Content */}
       <motion.div
-        className="relative z-10 pt-24 pb-12 px-4 backdrop-blur-sm"
+        className="relative z-10 pt-24 pb-12 px-4 backdrop-blur-sm min-h-screen"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         transition={{ duration: 0.5, ease: "easeInOut" }}
       >
-        <div className="container mx-auto max-w-4xl">
+        <div className="container mx-auto max-w-2xl">
           {/* Header */}
           <motion.div
             className="text-center mb-8"
@@ -200,7 +200,7 @@ const TrackComplaint = () => {
 
           {/* Results */}
           <motion.div
-            className="space-y-6 min-h-[600px]"
+            className="space-y-6"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
@@ -264,7 +264,7 @@ const TrackComplaint = () => {
                     delay: 1.8
                   }}
                 >
-                  <Card className="border-border/50 shadow-lg backdrop-blur-sm bg-card/95">
+                  <Card className="w-full max-w-[470px] sm:max-w-[500px] md:max-w-[600px] lg:max-w-[630px] mx-auto border-border/50 shadow-lg backdrop-blur-sm bg-card/95">
                     <motion.div
                       initial={{ y: 15, opacity: 0 }}
                       animate={{ y: 0, opacity: 1 }}

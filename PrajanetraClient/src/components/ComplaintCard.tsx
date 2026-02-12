@@ -90,8 +90,11 @@ export function ComplaintCard({ complaint, actions }: ComplaintCardProps) {
     const getStatusColor = (status: string) => {
         const upperStatus = status.toUpperCase()
         if (upperStatus === 'RESOLVED') return 'bg-green-500'
-        if (upperStatus === 'IN_PROGRESS' || upperStatus === 'UNDER_REVIEW') return 'bg-blue-500'
+        if (upperStatus === 'REJECTED') return 'bg-red-500'
+        if (upperStatus === 'IN_PROGRESS') return 'bg-blue-500'
+        if (upperStatus === 'UNDER_REVIEW') return 'bg-orange-500'
         if (upperStatus === 'ACKNOWLEDGED') return 'bg-yellow-500'
+        if (upperStatus === 'SUBMITTED') return 'bg-gray-500'
         return 'bg-gray-500'
     }
 
@@ -100,7 +103,7 @@ export function ComplaintCard({ complaint, actions }: ComplaintCardProps) {
     }
 
     return (
-        <div className="rounded-xl border bg-card overflow-hidden">
+        <div className="w-full max-w-[470px] sm:max-w-[500px] md:max-w-[600px] lg:max-w-[630px] mx-auto rounded-xl border bg-card overflow-hidden">
             {/* Header */}
             <div className="flex items-center justify-between p-3">
                 <div className="flex items-center gap-2">
@@ -149,7 +152,7 @@ export function ComplaintCard({ complaint, actions }: ComplaintCardProps) {
             </div>
 
             {/* Image Carousel */}
-            <div className=" bg-muted relative">
+            <div className="bg-muted relative w-full h-[450px] overflow-hidden">
                 {complaint.imageUrls && complaint.imageUrls.length > 0 ? (
                     complaint.imageUrls.length === 1 ? (
                         <img
@@ -158,10 +161,10 @@ export function ComplaintCard({ complaint, actions }: ComplaintCardProps) {
                             className="w-full h-full object-cover"
                         />
                     ) : (
-                        <Carousel className="">
-                            <CarouselContent>
+                        <Carousel className="w-full h-full">
+                            <CarouselContent className="h-full">
                                 {complaint.imageUrls.map((imageUrl, index) => (
-                                    <CarouselItem key={index}>
+                                    <CarouselItem key={index} className="h-full">
                                         <img
                                             src={imageUrl}
                                             alt={`${complaint.title} - Image ${index + 1}`}
@@ -180,10 +183,10 @@ export function ComplaintCard({ complaint, actions }: ComplaintCardProps) {
                     </div>
                 )}
                 {/* Location Badge */}
-                {complaint.location && (
+                {complaint.formattedAddress && (
                     <Badge variant="outline" className="absolute bottom-2 right-2 bg-black/60 text-white border-0 backdrop-blur-sm">
                         <MapPin className="w-3 h-3 mr-1" />
-                        <span className="line-clamp-1 max-w-[150px]">{complaint.location}</span>
+                        <span className="line-clamp-1 max-w-[150px]">{complaint.formattedAddress}</span>
                     </Badge>
                 )}
             </div>

@@ -7,6 +7,7 @@ export const ComplaintStatus = {
     UNDER_REVIEW: 'UNDER_REVIEW',
     IN_PROGRESS: 'IN_PROGRESS',
     RESOLVED: 'RESOLVED',
+    REJECTED: 'REJECTED',
 } as const;
 
 export type ComplaintStatus = typeof ComplaintStatus[keyof typeof ComplaintStatus];

@@ -19,11 +19,26 @@ const menuItems = [
   { name: "About", href: "#link" },
   { name: "Contact", href: "#link" },
 ];
+
+const adminMenuItems = [
+  { name: "Dashboard", href: "/admin/dashboard" },
+  { name: "Complaints", href: "/admin/complaints" },
+  { name: "Users", href: "/admin/users" },
+];
+
 export const Header = () => {
   const [menuState, setMenuState] = React.useState(false);
   const [scrolled, setScrolled] = React.useState(false);
   const location = useLocation();
   const { isAuthenticated, user } = useUserStore();
+
+  // Check if user is admin or staff
+  const isAdminOrStaff = user?.roles?.includes("ADMIN") || user?.roles?.includes("STAFF");
+
+  // Combine menu items based on user role
+  const displayMenuItems = isAdminOrStaff
+    ? [...menuItems, ...adminMenuItems]
+    : menuItems;
 
   const { scrollYProgress } = useScroll();
 
@@ -86,7 +101,7 @@ export const Header = () => {
 
               <div className="hidden lg:block">
                 <ul className="flex gap-10 text-sm">
-                  {menuItems.map((item, index) => (
+                  {displayMenuItems.map((item, index) => (
                     <li key={index}>
                       <a
                         href={item.href}
@@ -108,7 +123,7 @@ export const Header = () => {
             <div className="bg-background lg:h-14 in-data-[state=active]:block lg:in-data-[state=active]:flex mb-6 hidden w-full flex-wrap items-center justify-end space-y-8 rounded-3xl border p-6 shadow-2xl md:flex-nowrap lg:m-0 lg:flex lg:w-fit lg:gap-4 lg:space-y-0 lg:border-transparent lg:bg-transparent lg:p-0 lg:shadow-none dark:shadow-none dark:lg:bg-transparent">
               <div className="lg:hidden">
                 <ul className="space-y-6 text-base">
-                  {menuItems.map((item, index) => (
+                  {displayMenuItems.map((item, index) => (
                     <li key={index}>
                       <a
                         href={item.href}
