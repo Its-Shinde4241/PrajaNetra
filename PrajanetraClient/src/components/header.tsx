@@ -102,15 +102,15 @@ export const Header = () => {
                 <X className="in-data-[state=active]:rotate-0 in-data-[state=active]:scale-100 in-data-[state=active]:opacity-100 absolute inset-0 m-auto size-6 -rotate-180 scale-0 opacity-0 duration-200" />
               </button>
 
-              <div className="hidden lg:block">
-                <ul className="flex gap-10 text-sm">
+              <div className="hidden lg:block h-full  items-center">
+                <ul className="flex gap-10 text-sm h-full items-center">
                   {displayMenuItems.map((item, index) => (
                     <li key={index}>
                       {isInternalRoute(item.href) ? (
                         <Link
                           to={item.href}
                           className={cn(
-                            "block duration-150",
+                            "block duration-150 h-full",
                             isCurrentPage(item.href)
                               ? "text-accent-foreground"
                               : "text-muted-foreground hover:text-accent-foreground"

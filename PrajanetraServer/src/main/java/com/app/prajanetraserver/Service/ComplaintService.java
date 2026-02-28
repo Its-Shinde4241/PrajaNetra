@@ -1,8 +1,10 @@
 package com.app.prajanetraserver.Service;
 
 import com.app.prajanetraserver.DTO.ComplaintStatus;
+import com.app.prajanetraserver.DTO.FeedResponse;
 import com.app.prajanetraserver.Model.Complaint;
 import com.app.prajanetraserver.Model.User;
+import com.app.prajanetraserver.Repo.CommentRepo;
 import com.app.prajanetraserver.Repo.ComplaintRepo;
 import com.app.prajanetraserver.DTO.ComplaintResponse;
 import com.app.prajanetraserver.DTO.CreateComplaintRequest;
@@ -22,10 +24,12 @@ public class ComplaintService {
 
     private final ComplaintRepo complaintRepo;
     private final UserRepo userRepo;
+    private final CommentRepo commentRepo;
 
-    public ComplaintService(ComplaintRepo complaintRepo, UserRepo userRepo) {
+    public ComplaintService(ComplaintRepo complaintRepo, UserRepo userRepo, CommentRepo commentRepo) {
         this.complaintRepo = complaintRepo;
         this.userRepo = userRepo;
+        this.commentRepo = commentRepo;
     }
 
     public Complaint createComplaint(CreateComplaintRequest request, List<String> imageUrls) {
@@ -91,6 +95,52 @@ public class ComplaintService {
                 complaint.getLikes(),
                 complaint.getImageUrls(),
                 complaint.getStatus(),
+                complaint.getCreatedAt(),
+                complaint.getUpdatedAt()
+        );
+    }
+
+    public FeedResponse toFeedResponse(Complaint complaint, String currentUserId) {
+        User complaintUser = complaint.getUser();
+        long commentsCount = 0;
+        try {
+            commentsCount = commentRepo.countByComplaint(complaint);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        boolean liked = false;
+        boolean saved = false;
+        if (currentUserId != null && !currentUserId.isBlank()) {
+            try {
+                User currentUser = userRepo.findUserByUserId(currentUserId).orElse(null);
+                if (currentUser != null) {
+                    liked = currentUser.getLikedComplaints().contains(complaint.getComplaintId());
+                    saved = currentUser.getSavedComplaints().contains(complaint.getComplaintId());
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return new FeedResponse(
+                complaint.getComplaintId(),
+                complaint.getTitle(),
+                complaint.getDescription(),
+                complaint.getCategory(),
+                complaint.getFormattedAddress(),
+                complaint.getLatitude(),
+                complaint.getLongitude(),
+                complaint.getStatus(),
+                complaint.getImageUrls(),
+
+                complaintUser.getUserId(),
+                complaintUser.getName(),
+                complaintUser.getProfileImageUrl(),
+
+                complaint.getLikes(),
+                commentsCount,
+                liked,
+                saved,
                 complaint.getCreatedAt(),
                 complaint.getUpdatedAt()
         );

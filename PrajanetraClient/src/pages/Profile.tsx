@@ -7,7 +7,9 @@ import { toast } from "sonner";
 import { ProfileHeader } from "@/components/profilecomponents/ProfileHeader";
 import { AccountSettings } from "@/components/profilecomponents/AccountSettings";
 import { ComplaintsSection } from "@/components/profilecomponents/ComplaintsSection";
-import { Loader2 } from "lucide-react";
+import { Loader2, Save } from "lucide-react";
+import { LikedComplaintsSection } from "@/components/profilecomponents/LikedComplaintsSection";
+import { SavedComplaintsSection } from "@/components/profilecomponents/SavedComplaintsSection";
 
 const Profile = () => {
     const { user, logout, isAuthenticated } = useUserStore();
@@ -67,9 +69,11 @@ const Profile = () => {
                 {/* Tabs Content */}
                 <div>
                     <Tabs defaultValue="account" className="space-y-6">
-                        <TabsList className="grid w-full grid-cols-2">
+                        <TabsList className="grid w-full grid-cols-4">
                             <TabsTrigger value="account">Account</TabsTrigger>
                             <TabsTrigger value="complaints">Complaints</TabsTrigger>
+                            <TabsTrigger value="liked">Liked</TabsTrigger>
+                            <TabsTrigger value="saved">Saved</TabsTrigger>
                         </TabsList>
 
                         {/* Account Settings Tab */}
@@ -86,6 +90,12 @@ const Profile = () => {
                                 onNewComplaint={() => navigate("/complaint")}
                                 onViewAll={() => navigate("/my-complaints")}
                             />
+                        </TabsContent>
+                        <TabsContent value="liked">
+                            <LikedComplaintsSection />
+                        </TabsContent>
+                        <TabsContent value="saved">
+                            <SavedComplaintsSection />
                         </TabsContent>
                     </Tabs>
                 </div>

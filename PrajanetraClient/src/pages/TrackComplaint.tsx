@@ -8,8 +8,9 @@ import { Search, AlertCircle } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 import { useComplaintStore } from "@/store/complaintStore";
 import { toast } from "sonner";
-import { ComplaintCard } from "@/components/ComplaintCard";
 import { Timeline, generateTimelineSteps } from "@/components/Timeline";
+import CommentsSheet from "@/components/CommentsSheet";
+import ComplaintCard from "@/components/ComplaintCard";
 
 const TrackComplaint = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -17,6 +18,9 @@ const TrackComplaint = () => {
 
   const [complaintId, setComplaintId] = useState(idFromUrl);
   const [searchedId, setSearchedId] = useState("");
+
+  const [commentsOpen, setCommentsOpen] = useState(false);
+  const [activeComplaintId, setActiveComplaintId] = useState<string | null>(null);
 
   const { currentComplaint, isLoading, error, getComplaint, clearError, clearCurrentComplaint } = useComplaintStore();
 
@@ -35,6 +39,11 @@ const TrackComplaint = () => {
       clearError();
     };
   }, []);
+
+  const handleOpenComments = (complaintId: string) => {
+    setActiveComplaintId(complaintId);
+    setCommentsOpen(true);
+  };
 
   const fetchComplaint = async (id: string) => {
     if (!id.trim()) {
@@ -264,6 +273,7 @@ const TrackComplaint = () => {
                 >
                   <ComplaintCard
                     complaint={currentComplaint}
+                    onOpenComments={handleOpenComments}
                   />
                 </motion.div>
 
@@ -318,7 +328,15 @@ const TrackComplaint = () => {
           </motion.div>
         </div>
       </motion.div>
+      <div className="relative flex flex-col items-center">
+        <CommentsSheet
+          open={commentsOpen}
+          onOpenChange={setCommentsOpen}
+          complaintId={activeComplaintId}
+        />
+      </div>
     </div>
+
   );
 };
 

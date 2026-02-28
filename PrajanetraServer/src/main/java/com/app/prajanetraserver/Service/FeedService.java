@@ -100,6 +100,39 @@ public class FeedService {
         }
     }
 
+
+    public Page<FeedResponse> getUserLikedComplaints(String userId, int page, int size, String sortBy) {
+        User user = userRepo.findUserByUserId(userId).orElseThrow();
+        Sort sort = buildSort(sortBy);
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        List<String> likedIds = user.getLikedComplaints().stream().toList();
+        Page<Complaint> complaintsPage = complaintRepo.findByComplaintIdIn(likedIds, pageable);
+
+        List<FeedResponse> feedResponses = complaintsPage.getContent()
+                .stream()
+                .map(complaint -> mapToFeedResponse(complaint, userId))
+                .toList();
+
+        return new PageImpl<>(feedResponses, pageable, complaintsPage.getTotalElements());
+    }
+
+    public Page<FeedResponse> getUserSavedComplaints(String userId, int page, int size, String sortBy) {
+        User user = userRepo.findUserByUserId(userId).orElseThrow();
+        Sort sort = buildSort(sortBy);
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        List<String> savedIds = user.getSavedComplaints().stream().toList();
+        Page<Complaint> complaintsPage = complaintRepo.findByComplaintIdIn(savedIds, pageable);
+
+        List<FeedResponse> feedResponses = complaintsPage.getContent()
+                .stream()
+                .map(complaint -> mapToFeedResponse(complaint, userId))
+                .toList();
+
+        return new PageImpl<>(feedResponses, pageable, complaintsPage.getTotalElements());
+    }
+
     private FeedResponse mapToFeedResponse(Complaint complaint, String currentUserId) {
         // Access the user directly via the ManyToOne relation —
         User complaintOwner = complaint.getUser();

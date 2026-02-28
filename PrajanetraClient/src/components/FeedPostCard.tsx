@@ -54,7 +54,7 @@ const CATEGORY_ICONS: Record<string, string> = {
     "Water Supply": "💧",
     "Garbage Collection": "🗑️",
     "Street Lights": "💡",
-    Drainage: "🌊",
+    "Drainage": "🌊",
     "Public Property": "🏛️",
     Other: "📋",
 };
@@ -160,7 +160,7 @@ const FeedPostCard = ({ post, onOpenComments }: FeedPostCardProps) => {
             <div className="flex items-center justify-between p-3">
                 <div className="flex items-center gap-2.5">
                     {/* Gradient avatar ring like Instagram */}
-                    <div className="h-9 w-9 rounded-full bg-linear-to-br from-[#833AB4] via-[#FD1D1D] to-[#F77737] p-0.5">
+                    <div className="h-9 w-9 rounded-full bg-linear-to-br ring-1 ring-gray-200">
                         <Avatar className="h-full w-full border-2 border-card">
                             <AvatarImage
                                 src={post.userProfileImage}

@@ -91,7 +91,7 @@ const FileComplaint = () => {
 
       // Navigate to track page after a delay
       setTimeout(() => {
-        navigate("/track", { state: { complaintId: response.complaintId } });
+        navigate(`/track?id=${response.complaintId}`);
       }, 2000);
     } catch (error: any) {
       setButtonStatus("idle");

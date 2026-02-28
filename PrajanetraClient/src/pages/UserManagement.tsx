@@ -26,8 +26,8 @@ const UserManagement = () => {
     } = useAdminStore();
 
     const [searchTerm, setSearchTerm] = useState("");
-    const [filteredStaff, setFilteredStaff] = useState(staffMembers);
-    const [filteredRegular, setFilteredRegular] = useState(regularUsers);
+    // const [staffMembers, setFilteredStaff] = useState(staffMembers);
+    // const [regularUsers, setregularUsers] = useState(regularUsers);
 
     useEffect(() => {
         loadUsers();
@@ -40,9 +40,9 @@ const UserManagement = () => {
         }
     }, [error]);
 
-    useEffect(() => {
-        filterUsers();
-    }, [searchTerm, users, staffMembers, regularUsers]);
+    // useEffect(() => {
+    //     filterUsers();
+    // }, [searchTerm, users, staffMembers, regularUsers]);
 
     const loadUsers = async () => {
         try {
@@ -56,35 +56,35 @@ const UserManagement = () => {
         }
     };
 
-    const filterUsers = () => {
-        const term = searchTerm.toLowerCase();
+    // const filterUsers = () => {
+    //     const term = searchTerm.toLowerCase();
 
-        setFilteredStaff(
-            staffMembers.filter(
-                (user) =>
-                    user.name.toLowerCase().includes(term) ||
-                    user.email.toLowerCase().includes(term) ||
-                    user.userId.toLowerCase().includes(term)
-            )
-        );
+    //     setFilteredStaff(
+    //         staffMembers.filter(
+    //             (user) =>
+    //                 user.name.toLowerCase().includes(term) ||
+    //                 user.email.toLowerCase().includes(term) ||
+    //                 user.userId.toLowerCase().includes(term)
+    //         )
+    //     );
 
-        setFilteredRegular(
-            regularUsers.filter(
-                (user) =>
-                    user.name.toLowerCase().includes(term) ||
-                    user.email.toLowerCase().includes(term) ||
-                    user.userId.toLowerCase().includes(term)
-            )
-        );
-    };
+    //     setregularUsers(
+    //         regularUsers.filter(
+    //             (user) =>
+    //                 user.name.toLowerCase().includes(term) ||
+    //                 user.email.toLowerCase().includes(term) ||
+    //                 user.userId.toLowerCase().includes(term)
+    //         )
+    //     );
+    // };
 
     const handleMakeStaff = async (userId: string) => {
         // Optimistic update - remove from regular users immediately
-        const user = filteredRegular.find(u => u.userId === userId);
-        if (user) {
-            setFilteredRegular(prev => prev.filter(u => u.userId !== userId));
-            setFilteredStaff(prev => [...prev, { ...user, roles: [...(user.roles || []), "STAFF"] }]);
-        }
+        // const user = regularUsers.find(u => u.userId === userId);
+        // if (user) {
+        //     setregularUsers(prev => prev.filter(u => u.userId !== userId));
+        //     setFilteredStaff(prev => [...prev, { ...user, roles: [...(user.roles || []), "STAFF"] }]);
+        // }
 
         try {
             await makeStaff(userId);
@@ -98,11 +98,11 @@ const UserManagement = () => {
 
     const handleRevokeStaff = async (userId: string) => {
         // Optimistic update - remove from staff immediately
-        const user = filteredStaff.find(u => u.userId === userId);
-        if (user) {
-            setFilteredStaff(prev => prev.filter(u => u.userId !== userId));
-            setFilteredRegular(prev => [...prev, { ...user, roles: (user.roles || []).filter(r => r !== "STAFF") }]);
-        }
+        // const user = staffMembers.find(u => u.userId === userId);
+        // if (user) {
+        //     setFilteredStaff(prev => prev.filter(u => u.userId !== userId));
+        //     setregularUsers(prev => [...prev, { ...user, roles: (user.roles || []).filter(r => r !== "STAFF") }]);
+        // }
 
         try {
             await revokeStaffRole(userId);
@@ -189,8 +189,8 @@ const UserManagement = () => {
                     {/* Users Tabs */}
                     <Tabs defaultValue="regular" className="space-y-4">
                         <TabsList className="grid w-full grid-cols-2">
-                            <TabsTrigger value="regular">Regular Users ({filteredRegular.length})</TabsTrigger>
-                            <TabsTrigger value="staff">Staff Members ({filteredStaff.length})</TabsTrigger>
+                            <TabsTrigger value="regular">Regular Users ({regularUsers.length})</TabsTrigger>
+                            <TabsTrigger value="staff">Staff Members ({staffMembers.length})</TabsTrigger>
                         </TabsList>
 
                         {/* Staff Members Tab */}
@@ -204,12 +204,12 @@ const UserManagement = () => {
                                 </CardHeader>
                                 <CardContent>
                                     <div className="space-y-2">
-                                        {filteredStaff.length === 0 ? (
+                                        {staffMembers.length === 0 ? (
                                             <p className="text-center text-muted-foreground py-8 text-sm">
                                                 No staff members found
                                             </p>
                                         ) : (
-                                            filteredStaff.map((staff) => (
+                                            staffMembers.map((staff) => (
                                                 <div
                                                     key={staff.userId}
                                                     className="flex items-center justify-between border rounded-lg p-3 hover:shadow-sm transition-shadow"
@@ -251,12 +251,12 @@ const UserManagement = () => {
                                 </CardHeader>
                                 <CardContent>
                                     <div className="space-y-2">
-                                        {filteredRegular.length === 0 ? (
+                                        {regularUsers.length === 0 ? (
                                             <p className="text-center text-muted-foreground py-8 text-sm">
                                                 No regular users found
                                             </p>
                                         ) : (
-                                            filteredRegular.map((user) => (
+                                            regularUsers.map((user) => (
                                                 <div
                                                     key={user.userId}
                                                     className="flex items-center justify-between border rounded-lg p-3 hover:shadow-sm transition-shadow"

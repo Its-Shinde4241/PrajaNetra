@@ -1,19 +1,11 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import type { Complaint } from "@/store/complaintStore";
 import { Calendar, Maximize2, Camera } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 interface ComplaintCardProps {
-    complaint: {
-        complaintId: string;
-        title: string;
-        description: string;
-        likes: number;
-        status: string;
-        category: string;
-        createdAt: string;
-        imageUrls?: string[];
-    };
+    complaint: Complaint
 }
 
 export const ComplaintListCard = ({ complaint }: ComplaintCardProps) => {

@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { axiosInstance } from "@/lib/axios";
-
+import { useUserStore } from "@/store/userStore";
 export interface FeedPost {
     complaintId: string;
     title: string;
@@ -32,6 +32,8 @@ interface FeedPagination {
 
 interface FeedState {
     posts: FeedPost[];
+    likedComplaints: FeedPost[];
+    savedComplaints: FeedPost[];
     trendingPosts: FeedPost[];
     isLoading: boolean;
     isLoadingMore: boolean;
@@ -42,6 +44,8 @@ interface FeedState {
     sortBy: string;
 
     fetchFeed: (page?: number, reset?: boolean) => Promise<void>;
+    fetchLikedComplaints: (page?: number) => Promise<void>;
+    fetchSavedComplaints: (page?: number) => Promise<void>;
     loadMore: () => Promise<void>;
     fetchTrending: (limit?: number) => Promise<void>;
     fetchUserFeed: (userId: string, page?: number) => Promise<void>;
@@ -64,6 +68,8 @@ const defaultPagination: FeedPagination = {
 
 export const useFeedStore = create<FeedState>((set, get) => ({
     posts: [],
+    likedComplaints: [],
+    savedComplaints: [],
     trendingPosts: [],
     isLoading: false,
     isLoadingMore: false,
@@ -109,7 +115,62 @@ export const useFeedStore = create<FeedState>((set, get) => ({
             });
         }
     },
+    fetchLikedComplaints: async (page = 0) => {
+        set({ isLoading: true, error: null });
+        try {
+            // You need the current user's userId, get it from your user store
+            const userId = useUserStore.getState().user?.userId;
+            const { sortBy } = get();
+            const res = await axiosInstance.get(`/profile/${userId}/liked`, {
+                params: { page, size: 10, sortBy },
+            });
+            const data = res.data;
+            set({
+                likedComplaints: data.content,
+                pagination: {
+                    currentPage: data.number,
+                    totalPages: data.totalPages,
+                    totalItems: data.totalElements,
+                    hasNext: !data.last,
+                    hasPrevious: !data.first,
+                },
+                isLoading: false,
+            });
+        } catch (err: any) {
+            set({
+                error: err.response?.data?.error || "Failed to load liked complaints",
+                isLoading: false,
+            });
+        }
+    },
 
+    fetchSavedComplaints: async (page = 0) => {
+        set({ isLoading: true, error: null });
+        try {
+            const userId = useUserStore.getState().user?.userId;
+            const { sortBy } = get();
+            const res = await axiosInstance.get(`/profile/${userId}/saved`, {
+                params: { page, size: 10, sortBy },
+            });
+            const data = res.data;
+            set({
+                savedComplaints: data.content,
+                pagination: {
+                    currentPage: data.number,
+                    totalPages: data.totalPages,
+                    totalItems: data.totalElements,
+                    hasNext: !data.last,
+                    hasPrevious: !data.first,
+                },
+                isLoading: false,
+            });
+        } catch (err: any) {
+            set({
+                error: err.response?.data?.error || "Failed to load saved complaints",
+                isLoading: false,
+            });
+        }
+    },
     loadMore: async () => {
         const { pagination, isLoadingMore, isLoading } = get();
         if (!pagination.hasNext || isLoadingMore || isLoading) return;

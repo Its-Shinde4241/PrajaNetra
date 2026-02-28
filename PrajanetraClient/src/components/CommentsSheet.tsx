@@ -29,7 +29,6 @@ const CommentsSheet = ({ open, onOpenChange, complaintId }: CommentsSheetProps) 
         isFetching,
         isAdding,
         isDeleting,
-        isLiking,
         fetchComments,
         addComment,
         clearComments,
@@ -66,7 +65,6 @@ const CommentsSheet = ({ open, onOpenChange, complaintId }: CommentsSheetProps) 
             toast.error("Please login to like comments");
             return;
         }
-        if (isLiking) return;
         try {
             await toggleLike(commentId, user.userId);
         } catch {
@@ -197,13 +195,11 @@ const CommentsSheet = ({ open, onOpenChange, complaintId }: CommentsSheetProps) 
                                                 <button
                                                     className="flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition"
                                                     onClick={() => handleLike(comment.commentId)}
-                                                    disabled={!isAuthenticated || isLiking}
+                                                    disabled={!isAuthenticated}
                                                     aria-label={comment.isLiked ? "Unlike" : "Like"}
                                                 >
-                                                    {isLiking && (
-                                                        <Loader2 className="h-4 w-4 animate-spin text-primary" />
-                                                    )}
-                                                    {!isLiking && (comment.isLiked ? (
+
+                                                    {(comment.isLiked ? (
                                                         <Heart className="h-4 w-4 text-primary fill-primary" />
                                                     ) : (
                                                         <HeartOff className="h-4 w-4" />

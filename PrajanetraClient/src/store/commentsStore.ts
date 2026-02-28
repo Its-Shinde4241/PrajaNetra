@@ -28,7 +28,6 @@ interface CommentsState {
     isFetching: boolean;
     isAdding: boolean;
     isDeleting: boolean;
-    isLiking: boolean;
     error: string | null;
     pagination: CommentsPagination;
     fetchComments: (complaintId: string, page?: number) => Promise<void>;
@@ -53,7 +52,6 @@ export const useCommentsStore = create<CommentsState>((set, get) => ({
     isFetching: false,
     isAdding: false,
     isDeleting: false,
-    isLiking: false,
     error: null,
     pagination: { ...defaultPagination },
 
@@ -119,7 +117,6 @@ export const useCommentsStore = create<CommentsState>((set, get) => ({
     },
 
     toggleLike: async (commentId, userId) => {
-        set({ isLiking: true });
         const prevComments = [...get().comments];
         set({
             comments: get().comments.map((c) =>
@@ -137,9 +134,8 @@ export const useCommentsStore = create<CommentsState>((set, get) => ({
         });
         try {
             await axiosInstance.put(`/comments/${commentId}/toggle-like?userId=${userId}`);
-            set({ isLiking: false });
         } catch (err: any) {
-            set({ comments: prevComments, isLiking: false });
+            set({ comments: prevComments });
         }
     },
 

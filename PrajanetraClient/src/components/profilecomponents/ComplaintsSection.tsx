@@ -2,19 +2,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { FileText, RefreshCw, CheckCircle2 } from "lucide-react";
 import { ComplaintListCard } from "./ComplaintListCard";
-import { ComplaintStatus } from "@/store/complaintStore";
+import { ComplaintStatus, type Complaint } from "@/store/complaintStore";
 
 interface ComplaintsSectionProps {
-    userComplaints: Array<{
-        complaintId: string;
-        title: string;
-        description: string;
-        likes: number;
-        status: string;
-        category: string;
-        createdAt: string;
-        imageUrls?: string[];
-    }>;
+    userComplaints: Complaint[];
     isLoading: boolean;
     onRefresh: () => void;
     onNewComplaint: () => void;

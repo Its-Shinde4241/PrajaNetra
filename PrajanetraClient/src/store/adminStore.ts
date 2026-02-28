@@ -135,10 +135,14 @@ export const useAdminStore = create<AdminStore>((set, get) => ({
     makeStaff: async (userId: string) => {
         set({ isLoading: true, error: null });
         try {
+            set({
+                staffMembers: [...get().staffMembers, get().users.find((u) => u.userId === userId)!],
+                regularUsers: get().regularUsers.filter((u) => u.userId !== userId),
+            })
             await axiosInstance.put(`/admin/makestaff/${userId}`);
             set({ isLoading: false });
             // Refresh user lists
-            await get().getAllUsers();
+            await get().getAllRegularUsers();
         } catch (error: any) {
             const errorMessage = error.response?.data?.message || 'Failed to make user staff';
             set({ error: errorMessage, isLoading: false });
@@ -149,10 +153,14 @@ export const useAdminStore = create<AdminStore>((set, get) => ({
     revokeStaffRole: async (userId: string) => {
         set({ isLoading: true, error: null });
         try {
+            set({
+                staffMembers: get().staffMembers.filter((u) => u.userId !== userId),
+                regularUsers: [...get().regularUsers, get().users.find((u) => u.userId === userId)!],
+            })
             await axiosInstance.put(`/admin/revokestaff/${userId}`);
             set({ isLoading: false });
             // Refresh user lists
-            await get().getAllUsers();
+            await get().getAllStaffMembers();
         } catch (error: any) {
             const errorMessage = error.response?.data?.message || 'Failed to revoke staff role';
             set({ error: errorMessage, isLoading: false });

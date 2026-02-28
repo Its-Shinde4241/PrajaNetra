@@ -14,16 +14,21 @@ export type ComplaintStatus = typeof ComplaintStatus[keyof typeof ComplaintStatu
 
 export interface Complaint {
     complaintId: string;
-    userId: string;
     title: string;
+    description: string;
     category: string;
+    formattedAddress: string;
     latitude: number;
     longitude: number;
-    formattedAddress: string;
-    description: string;
-    likes: number;
-    status: ComplaintStatus;
-    imageUrls?: string[];
+    status: string;
+    imageUrls: string[];
+    userId: string;
+    userName: string;
+    userProfileImage: string;
+    likesCount: number;
+    commentsCount: number;
+    likedByCurrentUser: boolean;
+    savedByCurrentUser: boolean;
     createdAt: string;
     updatedAt: string;
 }
@@ -73,8 +78,8 @@ interface ComplaintStore {
     getUserComplaints: (userId: string, filters?: Omit<ComplaintFilters, 'userId'>) => Promise<void>;
     updateComplaintStatus: (complaintId: string, status: ComplaintStatus) => Promise<void>;
     deleteComplaint: (complaintId: string) => Promise<void>;
-    likeComplaint: (complaintId: string) => Promise<void>;
-    dislikeComplaint: (complaintId: string) => Promise<void>;
+    toggleLike: (complaintId: string, userId: string) => Promise<void>;
+    toggleSave: (complaintId: string, userId: string) => Promise<void>;
     clearError: () => void;
     clearCurrentComplaint: () => void;
 }
@@ -262,27 +267,41 @@ export const useComplaintStore = create<ComplaintStore>((set) => ({
         }
     },
 
-    likeComplaint: async (complaintId: string) => {
+    toggleLike: async (complaintId: string, userId: string) => {
         set({ isLoading: true, error: null });
+        const params = new URLSearchParams();
+        params.append("complaintId", complaintId);
+        params.append("userId", userId);
         try {
-            await axiosInstance.put(`/complaints/like/${complaintId}`);
-
             set((state) => ({
                 userComplaints: state.userComplaints.map((complaint) =>
                     complaint.complaintId === complaintId
-                        ? { ...complaint, likes: complaint.likes + 1 }
+                        ? {
+                            ...complaint,
+                            likedByCurrentUser: !complaint.likedByCurrentUser,
+                            likesCount: complaint.likedByCurrentUser
+                                ? complaint.likesCount - 1
+                                : complaint.likesCount + 1,
+                        }
                         : complaint
                 ),
                 allComplaints: state.allComplaints.map((complaint) =>
                     complaint.complaintId === complaintId
-                        ? { ...complaint, likes: complaint.likes + 1 }
+                        ? {
+                            ...complaint,
+                            likedByCurrentUser: !complaint.likedByCurrentUser,
+                            likesCount: complaint.likedByCurrentUser
+                                ? complaint.likesCount - 1
+                                : complaint.likesCount + 1,
+                        }
                         : complaint
                 ),
                 currentComplaint: state.currentComplaint?.complaintId === complaintId
-                    ? { ...state.currentComplaint, likes: state.currentComplaint.likes + 1 }
+                    ? { ...state.currentComplaint, likedByCurrentUser: !state.currentComplaint.likedByCurrentUser, likesCount: state.currentComplaint.likesCount + (state.currentComplaint.likedByCurrentUser ? -1 : 1) }
                     : state.currentComplaint,
                 isLoading: false,
             }));
+            await axiosInstance.put(`/complaints/toggle/like?${params.toString()}`);
         } catch (error: any) {
             const errorMessage = error.response?.data?.message || 'Failed to like complaint';
             set({ error: errorMessage, isLoading: false });
@@ -290,29 +309,37 @@ export const useComplaintStore = create<ComplaintStore>((set) => ({
         }
     },
 
-    dislikeComplaint: async (complaintId: string) => {
+    toggleSave: async (complaintId: string, userId: string) => {
         set({ isLoading: true, error: null });
+        const params = new URLSearchParams();
+        params.append("complaintId", complaintId);
+        params.append("userId", userId);
         try {
-            await axiosInstance.put(`/complaints/dislike/${complaintId}`);
-
             set((state) => ({
                 userComplaints: state.userComplaints.map((complaint) =>
                     complaint.complaintId === complaintId
-                        ? { ...complaint, likes: Math.max(0, complaint.likes - 1) }
+                        ? {
+                            ...complaint,
+                            savedByCurrentUser: !complaint.savedByCurrentUser,
+                        }
                         : complaint
                 ),
                 allComplaints: state.allComplaints.map((complaint) =>
                     complaint.complaintId === complaintId
-                        ? { ...complaint, likes: Math.max(0, complaint.likes - 1) }
+                        ? {
+                            ...complaint,
+                            savedByCurrentUser: !complaint.savedByCurrentUser
+                        }
                         : complaint
                 ),
                 currentComplaint: state.currentComplaint?.complaintId === complaintId
-                    ? { ...state.currentComplaint, likes: Math.max(0, state.currentComplaint.likes - 1) }
+                    ? { ...state.currentComplaint, savedByCurrentUser: !state.currentComplaint.savedByCurrentUser }
                     : state.currentComplaint,
                 isLoading: false,
             }));
+            await axiosInstance.put(`/complaints/toggle/save?${params.toString()}`);
         } catch (error: any) {
-            const errorMessage = error.response?.data?.message || 'Failed to dislike complaint';
+            const errorMessage = error.response?.data?.message || 'Failed to save complaint';
             set({ error: errorMessage, isLoading: false });
             throw new Error(errorMessage);
         }
