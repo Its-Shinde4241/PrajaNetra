@@ -5,7 +5,7 @@ import React from "react";
 import { cn } from "@/lib/utils";
 import { useScroll } from "motion/react";
 import { Separator } from "@/components/ui/separator";
-import { useLocation } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
 import favicon from "@/assets/favicon.svg";
 import { ThemeTogglerButton } from "./animate-ui/components/buttons/theme-toggler";
 import { NavUser } from "./nav-user";
@@ -55,6 +55,9 @@ export const Header = () => {
     return location.pathname.startsWith(href);
   };
 
+  // Helper to check if href is an internal route (not a hash link)
+  const isInternalRoute = (href: string) => href.startsWith("/");
+
   return (
     <header>
       <nav
@@ -67,8 +70,8 @@ export const Header = () => {
         <div className="px-3 h-full transition-all duration-300">
           <div className="relative flex h-full flex-wrap items-center justify-between gap-3 lg:gap-0">
             <div className="flex w-full h-full items-center justify-between gap-6 lg:w-auto">
-              <a
-                href="/"
+              <Link
+                to="/"
                 aria-label="home"
                 className="flex gap-2 -mr-3 whitespace-nowrap items-center"
               >
@@ -86,7 +89,7 @@ export const Header = () => {
                   width={50}
                   className="h-10 z-10 w-full dark:hidden block object-contain"
                 />
-              </a>
+              </Link>
 
               <Separator className="hidden lg:block" orientation="vertical" />
 
@@ -103,17 +106,29 @@ export const Header = () => {
                 <ul className="flex gap-10 text-sm">
                   {displayMenuItems.map((item, index) => (
                     <li key={index}>
-                      <a
-                        href={item.href}
-                        className={cn(
-                          "block duration-150",
-                          isCurrentPage(item.href)
-                            ? "text-accent-foreground"
-                            : "text-muted-foreground hover:text-accent-foreground"
-                        )}
-                      >
-                        <span>{item.name}</span>
-                      </a>
+                      {isInternalRoute(item.href) ? (
+                        <Link
+                          to={item.href}
+                          className={cn(
+                            "block duration-150",
+                            isCurrentPage(item.href)
+                              ? "text-accent-foreground"
+                              : "text-muted-foreground hover:text-accent-foreground"
+                          )}
+                        >
+                          <span>{item.name}</span>
+                        </Link>
+                      ) : (
+                        <a
+                          href={item.href}
+                          className={cn(
+                            "block duration-150",
+                            "text-muted-foreground hover:text-accent-foreground"
+                          )}
+                        >
+                          <span>{item.name}</span>
+                        </a>
+                      )}
                     </li>
                   ))}
                 </ul>
@@ -125,18 +140,31 @@ export const Header = () => {
                 <ul className="space-y-6 text-base">
                   {displayMenuItems.map((item, index) => (
                     <li key={index}>
-                      <a
-                        href={item.href}
-                        className={cn(
-                          "block duration-150",
-                          isCurrentPage(item.href)
-                            ? "text-accent-foreground"
-                            : "text-muted-foreground hover:text-accent-foreground"
-                        )}
-                        onClick={() => setMenuState(false)} // Close mobile menu on click
-                      >
-                        <span>{item.name}</span>
-                      </a>
+                      {isInternalRoute(item.href) ? (
+                        <Link
+                          to={item.href}
+                          className={cn(
+                            "block duration-150",
+                            isCurrentPage(item.href)
+                              ? "text-accent-foreground"
+                              : "text-muted-foreground hover:text-accent-foreground"
+                          )}
+                          onClick={() => setMenuState(false)}
+                        >
+                          <span>{item.name}</span>
+                        </Link>
+                      ) : (
+                        <a
+                          href={item.href}
+                          className={cn(
+                            "block duration-150",
+                            "text-muted-foreground hover:text-accent-foreground"
+                          )}
+                          onClick={() => setMenuState(false)}
+                        >
+                          <span>{item.name}</span>
+                        </a>
+                      )}
                     </li>
                   ))}
                 </ul>
@@ -155,14 +183,14 @@ export const Header = () => {
               ) : (
                 <div className="flex w-full flex-col space-y-3 sm:flex-row sm:gap-3 sm:space-y-0 md:w-fit">
                   <Button asChild variant="outline" size="sm">
-                    <a href="/login">
+                    <Link to="/login">
                       <span>Login</span>
-                    </a>
+                    </Link>
                   </Button>
                   <Button asChild size="sm">
-                    <a href="/signup">
+                    <Link to="/signup">
                       <span>Sign Up</span>
-                    </a>
+                    </Link>
                   </Button>
                 </div>
               )}

@@ -15,10 +15,11 @@ const Profile = () => {
     const navigate = useNavigate();
 
     // Redirect if not authenticated
-    if (!isAuthenticated || !user) {
-        navigate("/login");
-        return null;
-    }
+    useEffect(() => {
+        if (!isAuthenticated || !user) {
+            navigate("/login");
+        }
+    }, [isAuthenticated, user, navigate]);
 
     // Fetch user complaints on mount
     useEffect(() => {
@@ -61,7 +62,7 @@ const Profile = () => {
             <div className="px-6 sm:px-10 md:px-10 lg:px-72 pt-18 pb-12">
 
                 {/* Profile Header */}
-                <ProfileHeader user={user} />
+                {user && <ProfileHeader user={user} />}
 
                 {/* Tabs Content */}
                 <div>
@@ -73,7 +74,7 @@ const Profile = () => {
 
                         {/* Account Settings Tab */}
                         <TabsContent value="account">
-                            <AccountSettings user={user} onLogout={handleLogout} />
+                            {user && <AccountSettings user={user} onLogout={handleLogout} />}
                         </TabsContent>
 
                         {/* Complaints Tab */}

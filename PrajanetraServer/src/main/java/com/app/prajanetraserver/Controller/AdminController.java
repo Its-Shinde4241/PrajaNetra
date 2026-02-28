@@ -38,7 +38,7 @@ public class AdminController {
     public ResponseEntity<?> changeComplaintStatus(@Valid @RequestBody ChangeStatusRequest request) {
         try {
             ComplaintStatus newStatus = request.getNewStatus();
-            if (newStatus != ComplaintStatus.ACKNOWLEDGED && newStatus != ComplaintStatus.UNDER_REVIEW && newStatus != ComplaintStatus.REJECTED && newStatus != ComplaintStatus.IN_PROGRESS && newStatus != ComplaintStatus.RESOLVED) {
+            if (newStatus != ComplaintStatus.ACKNOWLEDGED && newStatus != ComplaintStatus.UNDER_REVIEW && newStatus != ComplaintStatus.REJECTED && newStatus != ComplaintStatus.IN_PROGRESS && newStatus != ComplaintStatus.RESOLVED && newStatus!=ComplaintStatus.SUBMITTED) {
                 throw new IllegalArgumentException();
             }
             adminService.changeComplaintStatus(request.getComplaintId(), request.getNewStatus());

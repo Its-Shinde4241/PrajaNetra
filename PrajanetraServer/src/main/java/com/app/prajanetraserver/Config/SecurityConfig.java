@@ -39,7 +39,8 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/api/auth/login",
                                 "/api/auth/register",
-                                "/api/auth/google/login"
+                                "/api/auth/google/login",
+                                "/api/feed/**"
                         ).permitAll()
                         .requestMatchers("/api/admin/**").hasRole(Role.ADMIN.toString())
                         .requestMatchers("/api/staff/**").hasRole(Role.MUNICIPAL_STAFF.toString())

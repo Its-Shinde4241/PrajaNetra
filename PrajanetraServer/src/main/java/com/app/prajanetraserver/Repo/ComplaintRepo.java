@@ -44,16 +44,6 @@ public interface ComplaintRepo extends JpaRepository<Complaint, UUID> {
             @Param("status") ComplaintStatus status
     );
 
-
-    @Modifying
-    @Query("update Complaint set likes=likes+1 where complaintId= :complaintId")
-    void incrementLikes(@Param("complaintId") String complaintId);
-
-
-    @Modifying
-    @Query("update Complaint set likes=likes-1 where complaintId= :complaintId and likes !=0")
-    void decrementLikes(@Param("complaintId") String complaintId);
-
     @Modifying
     @Query("""
             update Complaint
@@ -61,4 +51,7 @@ public interface ComplaintRepo extends JpaRepository<Complaint, UUID> {
             where complaintId = :complaintId
             """)
     void changeStatus(String complaintId, ComplaintStatus newStatus);
+
+    Page<Complaint> findByCategoryAndStatus(String category, ComplaintStatus status,
+                                            Pageable pageable);
 }

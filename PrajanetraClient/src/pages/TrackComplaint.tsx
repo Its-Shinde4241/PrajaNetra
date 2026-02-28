@@ -5,49 +5,63 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Search, AlertCircle } from "lucide-react";
-import { useLocation } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { useComplaintStore } from "@/store/complaintStore";
 import { toast } from "sonner";
 import { ComplaintCard } from "@/components/ComplaintCard";
 import { Timeline, generateTimelineSteps } from "@/components/Timeline";
 
 const TrackComplaint = () => {
-  const location = useLocation();
-  const initialId = location.state?.complaintId || "";
+  const [searchParams, setSearchParams] = useSearchParams();
+  const idFromUrl = searchParams.get("id") || "";
 
-  const [complaintId, setComplaintId] = useState(initialId);
-  const [searchedId, setSearchedId] = useState(initialId);
+  const [complaintId, setComplaintId] = useState(idFromUrl);
+  const [searchedId, setSearchedId] = useState("");
 
   const { currentComplaint, isLoading, error, getComplaint, clearError, clearCurrentComplaint } = useComplaintStore();
 
+  // Fetch complaint when URL param changes (direct link or navigation)
   useEffect(() => {
-    // If there's an initial ID from navigation, fetch it
-    if (initialId) {
-      handleSearch(null, initialId);
+    if (idFromUrl) {
+      setComplaintId(idFromUrl);
+      fetchComplaint(idFromUrl);
     }
+  }, [idFromUrl]);
 
-    // Cleanup on unmount
+  // Cleanup on unmount
+  useEffect(() => {
     return () => {
       clearCurrentComplaint();
       clearError();
     };
   }, []);
 
-  const handleSearch = async (e: React.FormEvent | null, idToSearch?: string) => {
-    if (e) e.preventDefault();
-
-    const id = idToSearch || complaintId;
+  const fetchComplaint = async (id: string) => {
     if (!id.trim()) {
       toast.error("Please enter a complaint ID");
       return;
     }
 
     try {
-      await getComplaint(id);
-      setSearchedId(id);
+      clearError();
+      await getComplaint(id.trim());
+      setSearchedId(id.trim());
     } catch (err: any) {
       toast.error(err.message || "Failed to fetch complaint");
     }
+  };
+
+  const handleSearch = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!complaintId.trim()) {
+      toast.error("Please enter a complaint ID");
+      return;
+    }
+
+    // Update the URL search param so the link is shareable
+    setSearchParams({ id: complaintId.trim() });
+    await fetchComplaint(complaintId.trim());
   };
 
   return (

@@ -83,7 +83,7 @@ const AdminDashboard = () => {
 
     if (isLoading && !dashboardStats) {
         return (
-            <div className="min-h-screen">
+            <div className="min-h-screen backdrop-blur-sm">
                 {/* <Navbar /> */}
                 <div className="flex items-center justify-center min-h-[80vh]">
                     <SmoothLoader />
@@ -93,7 +93,7 @@ const AdminDashboard = () => {
     }
 
     return (
-        <div className="min-h-screen bg-background">
+        <div className="min-h-screen backdrop-blur-sm">
             <div className="container mx-auto px-4 py-8 pt-20 max-w-7xl">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}

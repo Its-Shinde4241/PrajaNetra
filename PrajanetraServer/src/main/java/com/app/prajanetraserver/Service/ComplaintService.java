@@ -2,6 +2,7 @@ package com.app.prajanetraserver.Service;
 
 import com.app.prajanetraserver.DTO.ComplaintStatus;
 import com.app.prajanetraserver.Model.Complaint;
+import com.app.prajanetraserver.Model.User;
 import com.app.prajanetraserver.Repo.ComplaintRepo;
 import com.app.prajanetraserver.DTO.ComplaintResponse;
 import com.app.prajanetraserver.DTO.CreateComplaintRequest;
@@ -99,12 +100,44 @@ public class ComplaintService {
         complaintRepo.deleteByComplaintId(complaintId);
     }
 
-    public void incrementLikes(String complaintId) {
-        complaintRepo.incrementLikes(complaintId);
+    @Transactional
+    public void toggleLike(String complaintId, String userId) {
+        User user = userRepo.findUserByUserId(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Complaint complaint = complaintRepo.findByComplaintId(complaintId)
+                .orElseThrow(() -> new RuntimeException("Complaint not found"));
+
+        if (user.getLikedComplaints().contains(complaintId)) {
+            // Unlike: remove from user's liked list and decrement likes count
+            user.getLikedComplaints().remove(complaintId);
+            complaint.setLikes(Math.max(0, complaint.getLikes() - 1));
+        } else {
+            // Like: add to user's liked list and increment likes count
+            user.getLikedComplaints().add(complaintId);
+            complaint.setLikes(complaint.getLikes() + 1);
+        }
+
+        userRepo.save(user);
+        complaintRepo.save(complaint);
     }
 
-    public void decrementLikes(String complaintId) {
-        complaintRepo.decrementLikes(complaintId);
+
+    @Transactional
+    public void toggleSave(String complaintId, String userId) {
+        User user = userRepo.findUserByUserId(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (!complaintRepo.existsByComplaintId(complaintId)) {
+            throw new RuntimeException("Complaint not found");
+        }
+
+        if (user.getSavedComplaints().contains(complaintId)) {
+            user.getSavedComplaints().remove(complaintId);
+        } else {
+            user.getSavedComplaints().add(complaintId);
+        }
+        userRepo.save(user);
     }
 
     private String generateComplaintId() {

@@ -192,10 +192,10 @@ public class ComplaintController {
         }
     }
 
-    @PutMapping("/like/{complaintId}")
-    ResponseEntity<?> incrementLikes(@PathVariable String complaintId) {
+    @PutMapping("/toggle/like")
+    public ResponseEntity<?> toggleLikes(@RequestParam String complaintId, @RequestParam String userId) {
         try {
-            complaintService.incrementLikes(complaintId);
+            complaintService.toggleLike(complaintId, userId);
             return ResponseEntity.status(HttpStatus.OK).body(Map.of("message", "Complaint Liked Successfully"));
         } catch (Exception e) {
             e.printStackTrace();
@@ -203,14 +203,15 @@ public class ComplaintController {
         }
     }
 
-    @PutMapping("/dislike/{complaintId}")
-    ResponseEntity<?> decrementLikes(@PathVariable String complaintId) {
+    @PutMapping("/toggle/save")
+    public ResponseEntity<?> toggleSave(@RequestParam String complaintId, @RequestParam String userId) {
         try {
-            complaintService.decrementLikes(complaintId);
-            return ResponseEntity.status(HttpStatus.OK).body(Map.of("message", "Complaint disliked Successfully"));
+            complaintService.toggleSave(complaintId, userId);
+            return ResponseEntity.status(HttpStatus.OK).body(Map.of("message", "Complaint Saved Successfully"));
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "Complaint dislike Failed"));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "Complaint Save Failed"));
         }
     }
+
 }

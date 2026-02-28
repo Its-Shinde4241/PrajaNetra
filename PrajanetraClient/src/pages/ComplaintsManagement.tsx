@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAdminStore, ComplaintStatus } from "@/store/adminStore";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -11,6 +12,7 @@ import { Search, RefreshCw, Clock, Users, FileText } from "lucide-react";
 import { SmoothLoader } from "@/components/ui/smooth-loader";
 
 const ComplaintsManagement = () => {
+    const navigate = useNavigate();
     const {
         recentComplaints,
         complaints,
@@ -116,6 +118,10 @@ const ComplaintsManagement = () => {
         return status.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase());
     };
 
+    const handleTrack = (complaintId: string) => {
+        navigate("/track", { state: { complaintId } });
+    };
+
     if (isLoading && filteredComplaints.length === 0) {
         return (
             <div className="min-h-screen">
@@ -127,7 +133,7 @@ const ComplaintsManagement = () => {
     }
 
     return (
-        <div className="min-h-screen bg-background">
+        <div className="min-h-screen backdrop-blur-sm">
             <div className="container mx-auto px-4 py-8 pt-20 max-w-7xl">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -149,11 +155,11 @@ const ComplaintsManagement = () => {
                     </div>
 
                     {/* Filters */}
-                    <Card>
+                    <Card className="gap-0 p-4">
                         <CardHeader>
                             <CardTitle className="text-sm">Filter Complaints</CardTitle>
                         </CardHeader>
-                        <CardContent className="pt-6">
+                        <CardContent className="pt-1">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div className="relative">
                                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -238,41 +244,50 @@ const ComplaintsManagement = () => {
                                                     {getStatusLabel(complaint.status)}
                                                 </Badge>
                                             </div>
-                                            <div className="flex items-center gap-3 pt-2 border-t">
-                                                <span className="text-sm font-medium text-muted-foreground">Status:</span>
-                                                <Select
-                                                    value={complaint.status}
-                                                    onValueChange={(value) =>
-                                                        handleStatusChange(
-                                                            complaint.complaintId,
-                                                            value as ComplaintStatus
-                                                        )
-                                                    }
+                                            <div className="flex items-center justify-between gap-3 pt-2 border-t">
+                                                <div className="flex items-center gap-3">
+                                                    <span className="text-sm font-medium text-muted-foreground">Status:</span>
+                                                    <Select
+                                                        value={complaint.status}
+                                                        onValueChange={(value) =>
+                                                            handleStatusChange(
+                                                                complaint.complaintId,
+                                                                value as ComplaintStatus
+                                                            )
+                                                        }
+                                                    >
+                                                        <SelectTrigger className="w-[180px]">
+                                                            <SelectValue />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            <SelectItem value={ComplaintStatus.SUBMITTED}>
+                                                                Submitted
+                                                            </SelectItem>
+                                                            <SelectItem value={ComplaintStatus.ACKNOWLEDGED}>
+                                                                Acknowledged
+                                                            </SelectItem>
+                                                            <SelectItem value={ComplaintStatus.UNDER_REVIEW}>
+                                                                Under Review
+                                                            </SelectItem>
+                                                            <SelectItem value={ComplaintStatus.IN_PROGRESS}>
+                                                                In Progress
+                                                            </SelectItem>
+                                                            <SelectItem value={ComplaintStatus.RESOLVED}>
+                                                                Resolved
+                                                            </SelectItem>
+                                                            <SelectItem value={ComplaintStatus.REJECTED}>
+                                                                Rejected
+                                                            </SelectItem>
+                                                        </SelectContent>
+                                                    </Select>
+                                                </div>
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    onClick={() => handleTrack(complaint.complaintId)}
                                                 >
-                                                    <SelectTrigger className="w-[180px]">
-                                                        <SelectValue />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        <SelectItem value={ComplaintStatus.SUBMITTED}>
-                                                            Submitted
-                                                        </SelectItem>
-                                                        <SelectItem value={ComplaintStatus.ACKNOWLEDGED}>
-                                                            Acknowledged
-                                                        </SelectItem>
-                                                        <SelectItem value={ComplaintStatus.UNDER_REVIEW}>
-                                                            Under Review
-                                                        </SelectItem>
-                                                        <SelectItem value={ComplaintStatus.IN_PROGRESS}>
-                                                            In Progress
-                                                        </SelectItem>
-                                                        <SelectItem value={ComplaintStatus.RESOLVED}>
-                                                            Resolved
-                                                        </SelectItem>
-                                                        <SelectItem value={ComplaintStatus.REJECTED}>
-                                                            Rejected
-                                                        </SelectItem>
-                                                    </SelectContent>
-                                                </Select>
+                                                    Track
+                                                </Button>
                                             </div>
                                         </div>
                                     ))

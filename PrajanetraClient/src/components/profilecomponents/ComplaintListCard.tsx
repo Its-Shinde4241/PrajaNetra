@@ -20,7 +20,7 @@ export const ComplaintListCard = ({ complaint }: ComplaintCardProps) => {
     const navigate = useNavigate();
 
     const handleTrack = () => {
-        navigate("/track", { state: { complaintId: complaint.complaintId } });
+        navigate(`/track?id=${complaint.complaintId}`);
     };
 
     const formatDate = (dateStr: string) => {

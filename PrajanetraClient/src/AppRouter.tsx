@@ -1,4 +1,3 @@
-// AppRouter.tsx
 import { Routes, Route, useLocation, Navigate } from "react-router-dom";
 import { AnimatePresence } from "motion/react";
 import { useUserStore } from "./store/userStore";
@@ -6,7 +5,6 @@ import { useUserStore } from "./store/userStore";
 import Index from "./pages/Index";
 import FileComplaint from "./pages/FileComplaint";
 import TrackComplaint from "./pages/TrackComplaint";
-import AllReports from "./pages/AllComplaints";
 import Signup from "./pages/Signup";
 import Login from "./pages/Login";
 import Profile from "./pages/Profile";
@@ -16,6 +14,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import ComplaintsManagement from "./pages/ComplaintsManagement";
 import UserManagement from "./pages/UserManagement";
 import { useEffect } from "react";
+import Feed from "./pages/FeedPage";
 
 // Protected Route Component - Only for authenticated users
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -44,8 +43,8 @@ function AdminRoute({ children }: { children: React.ReactNode }) {
         return <Navigate to="/login" replace />;
     }
 
-    // Check if user has ADMIN or STAFF role
-    const isAdmin = user?.roles?.includes("ADMIN") || user?.roles?.includes("STAFF");
+    console.log("User Roles:", user?.roles);
+    const isAdmin = user?.roles?.includes("ADMIN") || user?.roles?.includes("MUNICIPAL_STAFF");
 
     if (!isAdmin) {
         return <Navigate to="/" replace />;
@@ -165,9 +164,7 @@ export function AppRouter() {
                     <Route
                         path="/reports-feed"
                         element={
-                            <ProtectedRoute>
-                                <AllReports />
-                            </ProtectedRoute>
+                            <Feed />
                         }
                     />
 

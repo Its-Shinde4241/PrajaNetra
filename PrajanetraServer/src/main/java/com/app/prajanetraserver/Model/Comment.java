@@ -5,6 +5,8 @@ import lombok.*;
 import net.minidev.json.annotate.JsonIgnore;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -28,6 +30,12 @@ public class Comment {
 
     @Setter
     private int likes = 0;
+
+    @Setter
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "comment_likes", joinColumns = @JoinColumn(name = "comment_id"))
+    @Column(name = "user_id")
+    private Set<String> likedByUsers = new HashSet<>();
 
     @Setter
     @ManyToOne(fetch = FetchType.LAZY, optional = false)

@@ -24,17 +24,7 @@ public interface CommentRepo extends JpaRepository<Comment, UUID> {
 
     boolean existsCommentByCommentId(String commentId);
 
-    @Modifying(clearAutomatically = true, flushAutomatically = true)
-    @Query("update Comment c set c.likes = c.likes + 1 where c.commentId = :commentId")
-    int incrementLikes(@Param("commentId") String commentId);
+    Page<Comment> findByComplaint(Complaint complaint, Pageable pageable);
 
-    @Modifying(clearAutomatically = true, flushAutomatically = true)
-    @Query("update Comment c set c.likes=c.likes - 1 where c.commentId = :commentId and c.likes > 0")
-    int decrementLikes(@Param("commentId") String commentId);
-
-    @Query("select c.likes from Comment c where c.commentId = :commentId")
-    int getLikes(@Param("commentId") String commentId);
-
-    @Query("")
-    Page<Comment> findCommentsByComplaint(Complaint complaint, Pageable pageable);
+    long countByComplaint(Complaint complaint);
 }
