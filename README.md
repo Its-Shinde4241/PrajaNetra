@@ -137,7 +137,9 @@ flowchart TB
 ```mermaid
 ---
 config:
-  layout: elk
+  layout: dagre
+  theme: default
+  look: classic
 ---
 flowchart TB
     subgraph subGraph0["Client"]
