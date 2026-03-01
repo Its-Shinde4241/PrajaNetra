@@ -68,7 +68,6 @@ Set the required environment variables in `application.properties` (DB URL, JWT 
 ### Frontend
 
 ```mermaid
----
 flowchart TB
     subgraph subGraph0["Frontend Layer - React + TypeScript + Vite"]
         A["React App"]
