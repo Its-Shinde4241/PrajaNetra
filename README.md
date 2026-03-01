@@ -69,9 +69,6 @@ Set the required environment variables in `application.properties` (DB URL, JWT 
 
 ```mermaid
 ---
-config:
-  layout: dagre
----
 flowchart TB
     subgraph subGraph0["Frontend Layer - React + TypeScript + Vite"]
         A["React App"]
@@ -249,6 +246,11 @@ flowchart TB
 ### Authentication
 
 ```mermaid
+---
+config:
+  theme: default
+  look: handDrawn
+---
 sequenceDiagram
     autonumber
     actor User
@@ -259,6 +261,7 @@ sequenceDiagram
     participant DB as Database
     participant Google
 
+    %% Local Login
     rect rgb(220, 240, 255)
         Note over User, DB: Local Login Flow
         User->>FE: Enter email & password
@@ -274,6 +277,7 @@ sequenceDiagram
         FE-->>User: Redirect to Home
     end
 
+    %% Google OAuth
     rect rgb(220, 255, 220)
         Note over User, Google: Google OAuth Flow
         User->>FE: Click "Sign in with Google"
@@ -298,6 +302,7 @@ sequenceDiagram
 ---
 config:
   look: handDrawn
+  theme: default
 ---
 sequenceDiagram
     autonumber
