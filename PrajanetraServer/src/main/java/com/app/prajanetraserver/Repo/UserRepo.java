@@ -2,6 +2,7 @@ package com.app.prajanetraserver.Repo;
 
 
 import com.app.prajanetraserver.Model.User;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -14,8 +15,6 @@ public interface UserRepo extends JpaRepository<User, UUID> {
     Optional<User> findByEmail(String email);
 
     boolean existsByEmail(String email);
-
-    boolean existsById(UUID uuid);
 
     boolean existsUserByUserId(String id);
 

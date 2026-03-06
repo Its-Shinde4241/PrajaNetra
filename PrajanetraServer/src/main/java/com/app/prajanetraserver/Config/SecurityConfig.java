@@ -1,5 +1,6 @@
 package com.app.prajanetraserver.Config;
 
+import com.app.prajanetraserver.DTO.Role;
 import com.app.prajanetraserver.Utils.JwtAuthFilter;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
@@ -38,9 +39,11 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/api/auth/login",
                                 "/api/auth/register",
-                                "/api/auth/google/login"
+                                "/api/auth/google/login",
+                                "/api/feed/**"
                         ).permitAll()
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api/admin/**").hasRole(Role.ADMIN.toString())
+                        .requestMatchers("/api/staff/**").hasRole(Role.MUNICIPAL_STAFF.toString())
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(exp -> exp

@@ -1,7 +1,10 @@
 package com.app.prajanetraserver.Service;
 
 import com.app.prajanetraserver.DTO.ComplaintStatus;
+import com.app.prajanetraserver.DTO.FeedResponse;
 import com.app.prajanetraserver.Model.Complaint;
+import com.app.prajanetraserver.Model.User;
+import com.app.prajanetraserver.Repo.CommentRepo;
 import com.app.prajanetraserver.Repo.ComplaintRepo;
 import com.app.prajanetraserver.DTO.ComplaintResponse;
 import com.app.prajanetraserver.DTO.CreateComplaintRequest;
@@ -21,10 +24,12 @@ public class ComplaintService {
 
     private final ComplaintRepo complaintRepo;
     private final UserRepo userRepo;
+    private final CommentRepo commentRepo;
 
-    public ComplaintService(ComplaintRepo complaintRepo, UserRepo userRepo) {
+    public ComplaintService(ComplaintRepo complaintRepo, UserRepo userRepo, CommentRepo commentRepo) {
         this.complaintRepo = complaintRepo;
         this.userRepo = userRepo;
+        this.commentRepo = commentRepo;
     }
 
     public Complaint createComplaint(CreateComplaintRequest request, List<String> imageUrls) {
@@ -35,7 +40,9 @@ public class ComplaintService {
         complaint.setComplaintId(complaintId);
         complaint.setUser(userRepo.findUserByUserId(request.getUserId()).orElseThrow());
         complaint.setCategory(request.getCategory());
-        complaint.setLocation(request.getLocation());
+        complaint.setLatitude(request.getLatitude());
+        complaint.setLongitude(request.getLongitude());
+        complaint.setFormattedAddress(request.getFormattedAddress());
         complaint.setDescription(request.getDescription());
         complaint.setImageUrls(imageUrls);
         complaint.setStatus(ComplaintStatus.SUBMITTED);
@@ -81,16 +88,106 @@ public class ComplaintService {
                 complaint.getUser().getUserId(),
                 complaint.getTitle(),
                 complaint.getCategory(),
-                complaint.getLocation(),
+                complaint.getLatitude(),
+                complaint.getLongitude(),
+                complaint.getFormattedAddress(),
                 complaint.getDescription(),
+                complaint.getLikes(),
                 complaint.getImageUrls(),
                 complaint.getStatus(),
                 complaint.getCreatedAt(),
-                complaint.getUpdatedAt());
+                complaint.getUpdatedAt()
+        );
+    }
+
+    public FeedResponse toFeedResponse(Complaint complaint, String currentUserId) {
+        User complaintUser = complaint.getUser();
+        long commentsCount = 0;
+        try {
+            commentsCount = commentRepo.countByComplaint(complaint);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        boolean liked = false;
+        boolean saved = false;
+        if (currentUserId != null && !currentUserId.isBlank()) {
+            try {
+                User currentUser = userRepo.findUserByUserId(currentUserId).orElse(null);
+                if (currentUser != null) {
+                    liked = currentUser.getLikedComplaints().contains(complaint.getComplaintId());
+                    saved = currentUser.getSavedComplaints().contains(complaint.getComplaintId());
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return new FeedResponse(
+                complaint.getComplaintId(),
+                complaint.getTitle(),
+                complaint.getDescription(),
+                complaint.getCategory(),
+                complaint.getFormattedAddress(),
+                complaint.getLatitude(),
+                complaint.getLongitude(),
+                complaint.getStatus(),
+                complaint.getImageUrls(),
+
+                complaintUser.getUserId(),
+                complaintUser.getName(),
+                complaintUser.getProfileImageUrl(),
+
+                complaint.getLikes(),
+                commentsCount,
+                liked,
+                saved,
+                complaint.getCreatedAt(),
+                complaint.getUpdatedAt()
+        );
     }
 
     public void deleteComplaint(String complaintId) {
         complaintRepo.deleteByComplaintId(complaintId);
+    }
+
+    @Transactional
+    public void toggleLike(String complaintId, String userId) {
+        User user = userRepo.findUserByUserId(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Complaint complaint = complaintRepo.findByComplaintId(complaintId)
+                .orElseThrow(() -> new RuntimeException("Complaint not found"));
+
+        if (user.getLikedComplaints().contains(complaintId)) {
+            // Unlike: remove from user's liked list and decrement likes count
+            user.getLikedComplaints().remove(complaintId);
+            complaint.setLikes(Math.max(0, complaint.getLikes() - 1));
+        } else {
+            // Like: add to user's liked list and increment likes count
+            user.getLikedComplaints().add(complaintId);
+            complaint.setLikes(complaint.getLikes() + 1);
+        }
+
+        userRepo.save(user);
+        complaintRepo.save(complaint);
+    }
+
+
+    @Transactional
+    public void toggleSave(String complaintId, String userId) {
+        User user = userRepo.findUserByUserId(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (!complaintRepo.existsByComplaintId(complaintId)) {
+            throw new RuntimeException("Complaint not found");
+        }
+
+        if (user.getSavedComplaints().contains(complaintId)) {
+            user.getSavedComplaints().remove(complaintId);
+        } else {
+            user.getSavedComplaints().add(complaintId);
+        }
+        userRepo.save(user);
     }
 
     private String generateComplaintId() {

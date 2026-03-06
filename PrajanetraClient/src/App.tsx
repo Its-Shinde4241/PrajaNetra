@@ -27,8 +27,8 @@ function App() {
               className="fixed inset-0 z-0 bg-cover bg-center bg-no-repeat"
               style={{
                 backgroundImage: `url(${heroImage})`,
-                willChange: 'auto', // Optimize for performance
-                transform: 'translateZ(0)', // Force GPU acceleration
+                willChange: 'auto',
+                transform: 'translateZ(0)',
               }}
             >
               <div className="absolute inset-0 bg-black/10" />

@@ -1,15 +1,17 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useUserStore } from '@/store/userStore';
 import { toast } from 'sonner';
+import { AnimatedButton } from '@/components/ui/animated-button';
 
 export default function Login() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [loginStatus, setLoginStatus] = useState<'idle' | 'loading' | 'success'>('idle');
+    const [googleStatus, setGoogleStatus] = useState<'idle' | 'loading' | 'success'>('idle');
     const navigate = useNavigate();
     const { login, loginWithGoogle, isLoading, clearError } = useUserStore();
 
@@ -17,18 +19,24 @@ export default function Login() {
         e.preventDefault();
         e.stopPropagation();
         clearError();
+        setLoginStatus('loading');
 
         try {
             await login(email, password);
+            setLoginStatus('success');
             toast.success('Login successful!');
-            navigate('/');
+            setTimeout(() => {
+                navigate('/');
+            }, 1000);
         } catch (error) {
+            setLoginStatus('idle');
             toast.error(error instanceof Error ? error.message : 'Login failed');
             console.error('Login error:', error);
         }
     };
 
     const handleGoogleLogin = () => {
+        setGoogleStatus('loading');
         loginWithGoogle();
     };
 
@@ -77,13 +85,14 @@ export default function Login() {
                                 autoComplete="current-password"
                             />
                         </div>
-                        <Button
+                        <AnimatedButton
                             type="submit"
-                            className="w-full"
+                            status={loginStatus}
+                            idleText="Sign In"
+                            loadingText="Signing in"
+                            successText="Success"
                             disabled={isLoading}
-                        >
-                            {isLoading ? 'Signing in...' : 'Sign In'}
-                        </Button>
+                        />
                     </form>
 
                     <div className="relative my-6">
@@ -98,7 +107,16 @@ export default function Login() {
                     </div>
 
                     <div className="grid">
-                        <Button variant="outline" type="button" disabled={isLoading} onClick={handleGoogleLogin}>
+                        <AnimatedButton
+                            variant="outline"
+                            type="button"
+                            status={googleStatus}
+                            onClick={handleGoogleLogin}
+                            disabled={isLoading}
+                            idleText=""
+                            loadingText=""
+                            successText=""
+                        >
                             <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
                                 <path
                                     d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -118,7 +136,7 @@ export default function Login() {
                                 />
                             </svg>
                             Google
-                        </Button>
+                        </AnimatedButton>
                     </div>
                 </CardContent>
                 <CardFooter>

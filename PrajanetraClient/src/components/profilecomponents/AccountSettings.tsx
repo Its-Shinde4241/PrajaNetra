@@ -1,11 +1,13 @@
 import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { LogOut } from "lucide-react";
+import { useUserStore } from "@/store/userStore";
+import { toast } from "sonner";
 
 interface AccountSettingsProps {
     user: {
@@ -19,25 +21,28 @@ interface AccountSettingsProps {
 export const AccountSettings = ({ user, onLogout }: AccountSettingsProps) => {
     const [isEditing, setIsEditing] = useState(false);
     const [editedName, setEditedName] = useState(user.name);
+    const [isSaving, setIsSaving] = useState(false);
+    const { updateProfile } = useUserStore();
 
-    const handleSave = () => {
-        // TODO: Implement API call to update user profile
-        setIsEditing(false);
+    const handleNameUpdate = async () => {
+        try {
+            setIsSaving(true);
+            await updateProfile(editedName);
+            setIsEditing(false);
+            toast.success("Name updated successfully!");
+        } catch (error) {
+            console.error("Failed to update profile:", error);
+            toast.error("Failed to update Name. Please try again.");
+        } finally {
+            setIsSaving(false);
+        }
     };
-
-    // const handleCancel = () => {
-    //     setEditedName(user.name);
-    //     setIsEditing(false);
-    // };
 
     return (
         <div className="space-y-6">
             {/* Account Settings */}
             <Card className="border-border/50 shadow-lg">
-                <CardHeader>
-                    <CardTitle>Account Settings</CardTitle>
-                    <CardDescription>Manage your account information and preferences</CardDescription>
-                </CardHeader>
+
                 <CardContent className="space-y-6">
                     <div className="flex items-center justify-between">
                         <div className="space-y-1">
@@ -74,47 +79,21 @@ export const AccountSettings = ({ user, onLogout }: AccountSettingsProps) => {
                                         onChange={(e) => setEditedName(e.target.value)}
                                     />
                                 </div>
-                                <Button onClick={handleSave}>
+                                <Button onClick={handleNameUpdate} disabled={isSaving}>
                                     Save Changes
                                 </Button>
                             </div>
                         </>
                     )}
-
-                    <Separator />
-                    <div className="flex items-center justify-between">
-                        <div className="space-y-1">
-                            <Label className="text-base">Email Address</Label>
-                            <p className="text-muted-foreground text-sm">{user.email}</p>
-                        </div>
-                    </div>
-
-                    <Separator />
-                    <div className="flex items-center justify-between">
-                        <div className="space-y-1">
-                            <Label className="text-base">Member Since</Label>
-                            <p className="text-muted-foreground text-sm">
-                                {new Date(user.createdAt).toLocaleDateString('en-US', {
-                                    year: 'numeric',
-                                    month: 'long',
-                                    day: 'numeric'
-                                })}
-                            </p>
-                        </div>
-                    </div>
                 </CardContent>
             </Card>
 
             {/* Logout Section */}
             <Card className="border-destructive/50">
-                <CardHeader>
-                    <CardTitle className="text-destructive">Sign Out</CardTitle>
-                    <CardDescription>Log out of your account</CardDescription>
-                </CardHeader>
                 <CardContent>
                     <div className="flex items-center justify-between">
                         <div className="space-y-1">
-                            <Label className="text-base">Logout</Label>
+                            <Label className="text-destructive">Logout</Label>
                             <p className="text-muted-foreground text-sm">
                                 Sign out from your current session
                             </p>

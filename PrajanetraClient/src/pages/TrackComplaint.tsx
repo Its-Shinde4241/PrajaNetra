@@ -1,84 +1,92 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "motion/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Search, CheckCircle2, Clock, AlertCircle, ArrowRight } from "lucide-react";
-import { useLocation } from "react-router-dom";
+import { Search, AlertCircle } from "lucide-react";
+import { useSearchParams } from "react-router-dom";
+import { useComplaintStore } from "@/store/complaintStore";
+import { toast } from "sonner";
+import { Timeline, generateTimelineSteps } from "@/components/Timeline";
+import CommentsSheet from "@/components/CommentsSheet";
+import ComplaintCard from "@/components/ComplaintCard";
 
 const TrackComplaint = () => {
-  const location = useLocation();
-  const initialId = location.state?.complaintId || "";
+  const [searchParams, setSearchParams] = useSearchParams();
+  const idFromUrl = searchParams.get("id") || "";
 
-  const [complaintId, setComplaintId] = useState(initialId);
-  const [searchedId, setSearchedId] = useState(initialId);
-  const [isSearching, setIsSearching] = useState(false);
+  const [complaintId, setComplaintId] = useState(idFromUrl);
+  const [searchedId, setSearchedId] = useState("");
 
-  // Mock data - in real app, this would come from API
-  const complaintData = {
-    id: searchedId || "MCP12345678",
-    status: "In Progress",
-    category: "Road & Infrastructure",
-    location: "Main Street, Sector 5",
-    description: "Pothole causing traffic issues",
-    submittedDate: "2025-11-20",
-    lastUpdated: "2025-11-22",
-    timeline: [
-      { status: "Submitted", date: "2025-11-20", completed: true },
-      { status: "Acknowledged", date: "2025-11-20", completed: true },
-      { status: "Under Review", date: "2025-11-21", completed: true },
-      { status: "In Progress", date: "2025-11-22", completed: true },
-      { status: "Resolved", date: "Pending", completed: false },
-    ],
+  const [commentsOpen, setCommentsOpen] = useState(false);
+  const [activeComplaintId, setActiveComplaintId] = useState<string | null>(null);
+
+  const { currentComplaint, isLoading, error, getComplaint, clearError, clearCurrentComplaint } = useComplaintStore();
+
+  // Fetch complaint when URL param changes (direct link or navigation)
+  useEffect(() => {
+    if (idFromUrl) {
+      setComplaintId(idFromUrl);
+      fetchComplaint(idFromUrl);
+    }
+  }, [idFromUrl]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      clearCurrentComplaint();
+      clearError();
+    };
+  }, []);
+
+  const handleOpenComments = (complaintId: string) => {
+    setActiveComplaintId(complaintId);
+    setCommentsOpen(true);
+  };
+
+  const fetchComplaint = async (id: string) => {
+    if (!id.trim()) {
+      toast.error("Please enter a complaint ID");
+      return;
+    }
+
+    try {
+      clearError();
+      await getComplaint(id.trim());
+      setSearchedId(id.trim());
+    } catch (err: any) {
+      toast.error(err.message || "Failed to fetch complaint");
+    }
   };
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSearching(true);
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    setSearchedId(complaintId);
-    setIsSearching(false);
-  };
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case "Resolved":
-        return <CheckCircle2 className="w-5 h-5 text-green-500" />;
-      case "In Progress":
-        return <Clock className="w-5 h-5 text-blue-500" />;
-      default:
-        return <AlertCircle className="w-5 h-5 text-yellow-500" />;
+    if (!complaintId.trim()) {
+      toast.error("Please enter a complaint ID");
+      return;
     }
-  };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "Resolved":
-        return "bg-green-500";
-      case "In Progress":
-        return "bg-blue-500";
-      default:
-        return "bg-yellow-500";
-    }
+    // Update the URL search param so the link is shareable
+    setSearchParams({ id: complaintId.trim() });
+    await fetchComplaint(complaintId.trim());
   };
 
   return (
-    <div className="min-h-screen bg-linear-to-b from-background/80 via-background/70 to-background/60">
+    <div className="min-h-screen ">
       {/* Static blur gradient background overlay */}
       <div className="absolute inset-0 " />
 
       {/* Content */}
       <motion.div
-        className="relative z-10 pt-24 pb-12 px-4 backdrop-blur-sm"
+        className="relative z-10 pt-24 pb-12 px-4 backdrop-blur-sm min-h-screen"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         transition={{ duration: 0.5, ease: "easeInOut" }}
       >
-        <div className="container mx-auto max-w-4xl">
+        <div className="container mx-auto max-w-2xl">
           {/* Header */}
           <motion.div
             className="text-center mb-8"
@@ -183,18 +191,18 @@ const TrackComplaint = () => {
                       >
                         <Button
                           type="submit"
-                          // size="sm"
-                          disabled={isSearching}
+                          disabled={isLoading}
                           className="relative overflow-hidden"
                         >
                           <motion.span
-                            animate={isSearching ? { opacity: 0 } : { opacity: 1 }}
+                            animate={isLoading ? { opacity: 0 } : { opacity: 1 }}
                             transition={{ duration: 0.2 }}
+                            className="flex items-center"
                           >
                             <Search className="w-4 h-4 mr-2" />
-                            {/* {isSearching ? "Searching..." : "Search"} */}
+                            Search
                           </motion.span>
-                          {isSearching && (
+                          {isLoading && (
                             <motion.div
                               className="absolute inset-0 flex items-center justify-center"
                               initial={{ opacity: 0 }}
@@ -215,7 +223,7 @@ const TrackComplaint = () => {
 
           {/* Results */}
           <motion.div
-            className="space-y-6 min-h-[600px]"
+            className="space-y-6"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
@@ -225,9 +233,34 @@ const TrackComplaint = () => {
               delay: 0.9
             }}
           >
-            {searchedId && (
+            {/* Error Message */}
+            {error && (
+              <motion.div
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                className="p-4 bg-destructive/10 border border-destructive/20 rounded-lg text-destructive"
+              >
+                <p className="font-medium">Error</p>
+                <p className="text-sm">{error}</p>
+              </motion.div>
+            )}
+
+            {/* No Results */}
+            {searchedId && !currentComplaint && !isLoading && !error && (
+              <motion.div
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                className="text-center p-8"
+              >
+                <AlertCircle className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+                <p className="text-lg font-medium">No complaint found</p>
+                <p className="text-muted-foreground">Please check the complaint ID and try again</p>
+              </motion.div>
+            )}
+
+            {searchedId && currentComplaint && (
               <>
-                {/* Status Overview */}
+                {/* Complaint Card */}
                 <motion.div
                   initial={{ y: 30, opacity: 0, scale: 0.98 }}
                   animate={{ y: 0, opacity: 1, scale: 1 }}
@@ -238,105 +271,10 @@ const TrackComplaint = () => {
                     delay: 1.0
                   }}
                 >
-                  <Card className="border-border/50 shadow-lg backdrop-blur-sm bg-card/95">
-                    <motion.div
-                      initial={{ y: 15, opacity: 0 }}
-                      animate={{ y: 0, opacity: 1 }}
-                      exit={{ y: -8, opacity: 0 }}
-                      transition={{
-                        duration: 0.5,
-                        ease: "easeOut",
-                        delay: 1.1
-                      }}
-                    >
-                      <CardHeader>
-                        <div className="flex items-center justify-between">
-                          <CardTitle className="flex items-center space-x-2">
-                            <motion.div
-                              initial={{ rotate: -10, scale: 0.8 }}
-                              animate={{ rotate: 0, scale: 1 }}
-                              transition={{ duration: 0.3, delay: 1.2 }}
-                            >
-                              {getStatusIcon(complaintData.status)}
-                            </motion.div>
-                            <span>Complaint #{complaintData.id}</span>
-                          </CardTitle>
-                          <motion.div
-                            initial={{ scale: 0.8, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            transition={{ duration: 0.3, delay: 1.3 }}
-                          >
-                            <Badge className={`${getStatusColor(complaintData.status)} text-white`}>
-                              {complaintData.status}
-                            </Badge>
-                          </motion.div>
-                        </div>
-                        <CardDescription>
-                          Submitted on {complaintData.submittedDate} • Last updated{" "}
-                          {complaintData.lastUpdated}
-                        </CardDescription>
-                      </CardHeader>
-                    </motion.div>
-
-                    <CardContent className="space-y-4">
-                      <motion.div
-                        className="grid grid-cols-1 md:grid-cols-2 gap-4"
-                        initial={{ y: 20, opacity: 0 }}
-                        animate={{ y: 0, opacity: 1 }}
-                        exit={{ y: -10, opacity: 0 }}
-                        transition={{
-                          duration: 0.5,
-                          ease: "easeOut",
-                          delay: 1.4
-                        }}
-                      >
-                        <motion.div
-                          initial={{ x: -15, opacity: 0 }}
-                          animate={{ x: 0, opacity: 1 }}
-                          transition={{
-                            duration: 0.4,
-                            ease: "easeOut",
-                            delay: 1.5
-                          }}
-                        >
-                          <p className="text-sm font-medium text-muted-foreground mb-1">
-                            Category
-                          </p>
-                          <p className="text-foreground">{complaintData.category}</p>
-                        </motion.div>
-                        <motion.div
-                          initial={{ x: 15, opacity: 0 }}
-                          animate={{ x: 0, opacity: 1 }}
-                          transition={{
-                            duration: 0.4,
-                            ease: "easeOut",
-                            delay: 1.6
-                          }}
-                        >
-                          <p className="text-sm font-medium text-muted-foreground mb-1">
-                            Location
-                          </p>
-                          <p className="text-foreground">{complaintData.location}</p>
-                        </motion.div>
-                      </motion.div>
-
-                      <motion.div
-                        initial={{ y: 15, opacity: 0 }}
-                        animate={{ y: 0, opacity: 1 }}
-                        exit={{ y: -8, opacity: 0 }}
-                        transition={{
-                          duration: 0.4,
-                          ease: "easeOut",
-                          delay: 1.7
-                        }}
-                      >
-                        <p className="text-sm font-medium text-muted-foreground mb-1">
-                          Description
-                        </p>
-                        <p className="text-foreground">{complaintData.description}</p>
-                      </motion.div>
-                    </CardContent>
-                  </Card>
+                  <ComplaintCard
+                    complaint={currentComplaint}
+                    onOpenComments={handleOpenComments}
+                  />
                 </motion.div>
 
                 {/* Timeline */}
@@ -350,7 +288,7 @@ const TrackComplaint = () => {
                     delay: 1.8
                   }}
                 >
-                  <Card className="border-border/50 shadow-lg backdrop-blur-sm bg-card/95">
+                  <Card className="w-full max-w-[470px] sm:max-w-[500px] md:max-w-[600px] lg:max-w-[630px] mx-auto border-border/50 shadow-lg backdrop-blur-sm bg-card/95">
                     <motion.div
                       initial={{ y: 15, opacity: 0 }}
                       animate={{ y: 0, opacity: 1 }}
@@ -370,91 +308,18 @@ const TrackComplaint = () => {
                     </motion.div>
 
                     <CardContent>
-                      <div className="space-y-4">
-                        {complaintData.timeline.map((item, index) => (
-                          <motion.div
-                            key={index}
-                            className="flex items-start space-x-4"
-                            initial={{ x: -20, opacity: 0 }}
-                            animate={{ x: 0, opacity: 1 }}
-                            exit={{ x: -10, opacity: 0 }}
-                            transition={{
-                              duration: 0.4,
-                              ease: "easeOut",
-                              delay: 2.0 + index * 0.1
-                            }}
-                          >
-                            <div className="relative">
-                              <motion.div
-                                className={`w-8 h-8 rounded-full flex items-center justify-center ${item.completed
-                                  ? "bg-primary text-primary-foreground"
-                                  : "bg-muted text-muted-foreground"
-                                  }`}
-                                initial={{ scale: 0.8, opacity: 0 }}
-                                animate={{ scale: 1, opacity: 1 }}
-                                transition={{
-                                  duration: 0.3,
-                                  ease: "easeOut",
-                                  delay: 2.1 + index * 0.1
-                                }}
-                              >
-                                {item.completed ? (
-                                  <CheckCircle2 className="w-4 h-4" />
-                                ) : (
-                                  <Clock className="w-4 h-4" />
-                                )}
-                              </motion.div>
-                              {index < complaintData.timeline.length - 1 && (
-                                <motion.div
-                                  className={`absolute left-4 top-8 w-0.5 h-8 ${item.completed ? "bg-primary" : "bg-muted"
-                                    }`}
-                                  initial={{ height: 0, opacity: 0 }}
-                                  animate={{ height: 32, opacity: 1 }}
-                                  transition={{
-                                    duration: 0.3,
-                                    ease: "easeOut",
-                                    delay: 2.2 + index * 0.1
-                                  }}
-                                />
-                              )}
-                            </div>
-                            <motion.div
-                              className="flex-1 pt-1"
-                              initial={{ y: 10, opacity: 0 }}
-                              animate={{ y: 0, opacity: 1 }}
-                              transition={{
-                                duration: 0.3,
-                                ease: "easeOut",
-                                delay: 2.2 + index * 0.1
-                              }}
-                            >
-                              <div className="flex items-center justify-between mb-1">
-                                <p
-                                  className={`font-medium ${item.completed ? "text-foreground" : "text-muted-foreground"
-                                    }`}
-                                >
-                                  {item.status}
-                                </p>
-                                <p className="text-sm text-muted-foreground">{item.date}</p>
-                              </div>
-                              {item.completed && index === complaintData.timeline.findIndex(t => t.completed) && (
-                                <motion.p
-                                  className="text-sm text-primary flex items-center mt-1"
-                                  initial={{ x: -10, opacity: 0 }}
-                                  animate={{ x: 0, opacity: 1 }}
-                                  transition={{
-                                    duration: 0.3,
-                                    ease: "easeOut",
-                                    delay: 2.3 + index * 0.1
-                                  }}
-                                >
-                                  Current Stage <ArrowRight className="w-3 h-3 ml-1" />
-                                </motion.p>
-                              )}
-                            </motion.div>
-                          </motion.div>
-                        ))}
-                      </div>
+                      <motion.div
+                        initial={{ y: 20, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        exit={{ y: -10, opacity: 0 }}
+                        transition={{
+                          duration: 0.5,
+                          ease: "easeOut",
+                          delay: 2.0
+                        }}
+                      >
+                        <Timeline steps={generateTimelineSteps(currentComplaint.status)} />
+                      </motion.div>
                     </CardContent>
                   </Card>
                 </motion.div>
@@ -463,7 +328,15 @@ const TrackComplaint = () => {
           </motion.div>
         </div>
       </motion.div>
+      <div className="relative flex flex-col items-center">
+        <CommentsSheet
+          open={commentsOpen}
+          onOpenChange={setCommentsOpen}
+          complaintId={activeComplaintId}
+        />
+      </div>
     </div>
+
   );
 };
 

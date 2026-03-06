@@ -34,8 +34,7 @@ axiosInstance.interceptors.request.use(
 axiosInstance.interceptors.response.use(
     (response) => response,
     (error) => {
-        // Only redirect if we're already logged in (have a token) and get 401
-        // Don't redirect on login/register failures
+        // redirect if we're already logged in (have a token) and get 401
         const isAuthEndpoint = error.config?.url?.includes('/auth/login') ||
             error.config?.url?.includes('/auth/register');
 

@@ -26,7 +26,7 @@ public class JwtService {
                 .claim("roles", user.getRoles())
                 .issuer("prajanetra-api")
                 .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + 86400000))
+                .expiration(new Date(System.currentTimeMillis() + 43200000))
                 .id(UUID.randomUUID().toString())          // WHICH TOKEN
                 .signWith(getSecretKey())
                 .compact();
@@ -50,13 +50,19 @@ public class JwtService {
     }
 
     private <T> T extractClaim(String token, Function<Claims, T> resolver) {
-        return resolver.apply(
-                Jwts.parser()
-                        .verifyWith(getSecretKey())
-                        .build()
-                        .parseSignedClaims(token)
-                        .getPayload()
-        );
+        try {
+
+            return resolver.apply(
+                    Jwts.parser()
+                            .verifyWith(getSecretKey())
+                            .build()
+                            .parseSignedClaims(token)
+                            .getPayload()
+            );
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
     }
 
     private SecretKey getSecretKey() {

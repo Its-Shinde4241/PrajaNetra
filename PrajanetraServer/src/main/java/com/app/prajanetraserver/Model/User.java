@@ -62,6 +62,34 @@ public class User {
     @Column(name = "role", nullable = false)
     private Set<Role> roles = new HashSet<>(Set.of(Role.USER));
 
+    @Setter
+    @ElementCollection
+    @CollectionTable(name = "user_liked_complaints", joinColumns = @JoinColumn(name = "user_id"))
+    @Column(name = "complaint_id")
+    private Set<String> likedComplaints = new HashSet<>();
+
+    @Setter
+    @ElementCollection
+    @CollectionTable(name = "user_saved_complaints", joinColumns = @JoinColumn(name = "user_id"))
+    @Column(name = "complaint_id")
+    private Set<String> savedComplaints = new HashSet<>();
+
+    // Getters
+    public Set<String> getLikedComplaints() {
+        if (likedComplaints == null) {
+            likedComplaints = new HashSet<>();
+        }
+        return likedComplaints;
+    }
+
+
+    public Set<String> getSavedComplaints() {
+        if (savedComplaints == null) {
+            savedComplaints = new HashSet<>();
+        }
+        return savedComplaints;
+    }
+
 
     @PrePersist
     protected void onCreate() {

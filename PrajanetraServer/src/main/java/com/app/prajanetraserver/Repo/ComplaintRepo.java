@@ -6,10 +6,12 @@ import com.app.prajanetraserver.Model.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -43,5 +45,16 @@ public interface ComplaintRepo extends JpaRepository<Complaint, UUID> {
             @Param("status") ComplaintStatus status
     );
 
+    @Modifying
+    @Query("""
+            update Complaint
+            set status = :newStatus
+            where complaintId = :complaintId
+            """)
+    void changeStatus(String complaintId, ComplaintStatus newStatus);
 
+    Page<Complaint> findByCategoryAndStatus(String category, ComplaintStatus status,
+                                            Pageable pageable);
+
+    Page<Complaint> findByComplaintIdIn(Collection<String> complaintIds, Pageable pageable);
 }

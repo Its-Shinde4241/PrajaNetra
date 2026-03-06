@@ -58,6 +58,27 @@ public class FileStorageService {
         return fileUrls;
     }
 
+    public String storeProfileImage(MultipartFile file, String userId) throws IOException {
+        if (file == null || file.isEmpty()) {
+            throw new IllegalArgumentException("File is empty");
+        }
+
+        long maxFileSize = 5 * 1024 * 1024;
+        if (file.getSize() > maxFileSize) {
+            throw new IllegalArgumentException("File size exceeds maximum limit of 5MB");
+        }
+
+        String originalFilename = file.getOriginalFilename();
+        if (originalFilename == null || !isValidFileExtension(originalFilename)) {
+            throw new IllegalArgumentException("Invalid file type. Allowed: jpg, jpeg, png, webp");
+        }
+
+        String fileExtension = originalFilename.substring(originalFilename.lastIndexOf("."));
+        String uniqueFilename = "profile_" + userId + "_" + UUID.randomUUID() + fileExtension;
+
+        return uploadToSupabase(file, uniqueFilename);
+    }
+
     private String uploadToSupabase(MultipartFile file, String filename) throws IOException {
         String uploadUrl = supabaseUrl + "/storage/v1/object/" + bucketName + "/" + filename;
 
@@ -68,7 +89,8 @@ public class FileStorageService {
 
         RequestBody requestBody = RequestBody.create(
                 file.getBytes(),
-                MediaType.parse(contentType));
+                MediaType.parse(contentType)
+        );
 
         Request request = new Request.Builder()
                 .url(uploadUrl)

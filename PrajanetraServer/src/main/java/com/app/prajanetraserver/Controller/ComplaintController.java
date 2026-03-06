@@ -1,12 +1,10 @@
 package com.app.prajanetraserver.Controller;
 
+import com.app.prajanetraserver.DTO.*;
 import com.app.prajanetraserver.Model.Complaint;
+import com.app.prajanetraserver.Model.MyUserDetails;
 import com.app.prajanetraserver.Service.ComplaintService;
 import com.app.prajanetraserver.Service.FileStorageService;
-import com.app.prajanetraserver.DTO.ComplaintResponse;
-import com.app.prajanetraserver.DTO.ComplaintStatus;
-import com.app.prajanetraserver.DTO.CreateComplaintRequest;
-import com.app.prajanetraserver.DTO.UpdateStatusRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -15,6 +13,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -55,7 +54,7 @@ public class ComplaintController {
             if (request.getCategory() == null || request.getCategory().trim().isEmpty()) {
                 return ResponseEntity.badRequest().body(Map.of("message", "Category is required"));
             }
-            if (request.getLocation() == null || request.getLocation().trim().isEmpty()) {
+            if (request.getFormattedAddress() == null || request.getFormattedAddress().trim().isEmpty()) {
                 return ResponseEntity.badRequest().body(Map.of("message", "Location is required"));
             }
             if (request.getDescription() == null || request.getDescription().trim().isEmpty()) {
@@ -86,12 +85,16 @@ public class ComplaintController {
     }
 
     @GetMapping("/{complaintId}")
-    public ResponseEntity<?> getComplaint(@PathVariable String complaintId) {
+    public ResponseEntity<?> getComplaint(@PathVariable String complaintId, Authentication authentication) {
         try {
             Complaint complaint = complaintService.getComplaintByComplaintId(complaintId)
                     .orElseThrow(() -> new RuntimeException("Complaint not found with ID: " + complaintId));
 
-            ComplaintResponse response = complaintService.toComplaintResponse(complaint);
+            String currentUserId = extractUserId(authentication);
+            FeedResponse complaintResponse = complaintService.toFeedResponse(complaint, currentUserId);
+            Map<String, Object> response = new HashMap<>();
+            response.put("complaint", complaintResponse);
+            response.put("message", "Complaint tracked successfully");
             return ResponseEntity.ok(response);
 
         } catch (RuntimeException e) {
@@ -111,7 +114,9 @@ public class ComplaintController {
             @RequestParam(required = false) String category,
             @RequestParam(required = false) String userId,
             @RequestParam(defaultValue = "createdAt") String sortBy,
-            @RequestParam(defaultValue = "DESC") String sortDirection) {
+            @RequestParam(defaultValue = "DESC") String sortDirection,
+            Authentication authentication
+    ) {
         try {
             Sort.Direction direction = sortDirection.equalsIgnoreCase("ASC") ? Sort.Direction.ASC : Sort.Direction.DESC;
             Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
@@ -135,7 +140,8 @@ public class ComplaintController {
                 complaintsPage = complaintService.getAllComplaints(pageable);
             }
 
-            Page<ComplaintResponse> responsePage = complaintsPage.map(complaintService::toComplaintResponse);
+            String currentUserId = this.extractUserId(authentication);
+            Page<FeedResponse> responsePage = complaintsPage.map((complaint) -> complaintService.toFeedResponse(complaint, currentUserId));
 
             Map<String, Object> response = new HashMap<>();
             response.put("complaints", responsePage.getContent());
@@ -155,7 +161,9 @@ public class ComplaintController {
     @PatchMapping("/{complaintId}/status")
     public ResponseEntity<?> updateComplaintStatus(
             @PathVariable String complaintId,
-            @RequestBody UpdateStatusRequest request) {
+            @RequestBody UpdateStatusRequest request,
+            Authentication authentication
+    ) {
         try {
             if (request.getStatus() == null) {
                 return ResponseEntity.badRequest()
@@ -163,7 +171,8 @@ public class ComplaintController {
             }
 
             Complaint complaint = complaintService.updateComplaintStatus(complaintId, request.getStatus());
-            ComplaintResponse response = complaintService.toComplaintResponse(complaint);
+            String currentUserId = this.extractUserId(authentication);
+            FeedResponse response = complaintService.toFeedResponse(complaint, currentUserId);
 
             return ResponseEntity.ok(Map.of(
                     "message", "Status updated successfully",
@@ -188,4 +197,34 @@ public class ComplaintController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
+
+    @PutMapping("/toggle/like")
+    public ResponseEntity<?> toggleLikes(@RequestParam String complaintId, @RequestParam String userId) {
+        try {
+            complaintService.toggleLike(complaintId, userId);
+            return ResponseEntity.status(HttpStatus.OK).body(Map.of("message", "Complaint Liked Successfully"));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "Complaint Liked Failed"));
+        }
+    }
+
+    @PutMapping("/toggle/save")
+    public ResponseEntity<?> toggleSave(@RequestParam String complaintId, @RequestParam String userId) {
+        try {
+            complaintService.toggleSave(complaintId, userId);
+            return ResponseEntity.status(HttpStatus.OK).body(Map.of("message", "Complaint Saved Successfully"));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "Complaint Save Failed"));
+        }
+    }
+
+    private String extractUserId(Authentication authentication) {
+        if (authentication != null && authentication.getPrincipal() instanceof MyUserDetails userDetails) {
+            return userDetails.getUser().getUserId();
+        }
+        return null;
+    }
+
 }

@@ -7,19 +7,28 @@ export const ComplaintStatus = {
     UNDER_REVIEW: 'UNDER_REVIEW',
     IN_PROGRESS: 'IN_PROGRESS',
     RESOLVED: 'RESOLVED',
+    REJECTED: 'REJECTED',
 } as const;
 
 export type ComplaintStatus = typeof ComplaintStatus[keyof typeof ComplaintStatus];
 
 export interface Complaint {
     complaintId: string;
-    userId: string;
     title: string;
-    category: string;
-    location: string;
     description: string;
-    status: ComplaintStatus;
-    imageUrls?: string[];
+    category: string;
+    formattedAddress: string;
+    latitude: number;
+    longitude: number;
+    status: string;
+    imageUrls: string[];
+    userId: string;
+    userName: string;
+    userProfileImage: string;
+    likesCount: number;
+    commentsCount: number;
+    likedByCurrentUser: boolean;
+    savedByCurrentUser: boolean;
     createdAt: string;
     updatedAt: string;
 }
@@ -28,7 +37,9 @@ export interface CreateComplaintData {
     userId: string;
     title: string;
     category: string;
-    location: string;
+    latitude: number;
+    longitude: number;
+    formattedAddress: string;
     description: string;
     images?: File[];
 }
@@ -67,6 +78,8 @@ interface ComplaintStore {
     getUserComplaints: (userId: string, filters?: Omit<ComplaintFilters, 'userId'>) => Promise<void>;
     updateComplaintStatus: (complaintId: string, status: ComplaintStatus) => Promise<void>;
     deleteComplaint: (complaintId: string) => Promise<void>;
+    toggleLike: (complaintId: string, userId: string) => Promise<void>;
+    toggleSave: (complaintId: string, userId: string) => Promise<void>;
     clearError: () => void;
     clearCurrentComplaint: () => void;
 }
@@ -97,7 +110,9 @@ export const useComplaintStore = create<ComplaintStore>((set) => ({
                 userId: data.userId,
                 title: data.title,
                 category: data.category,
-                location: data.location,
+                latitude: data.latitude,
+                longitude: data.longitude,
+                formattedAddress: data.formattedAddress,
                 description: data.description,
             };
             formData.append('data', JSON.stringify(complaintData));
@@ -128,7 +143,7 @@ export const useComplaintStore = create<ComplaintStore>((set) => ({
         try {
             const response = await axiosInstance.get(`/complaints/${complaintId}`);
             set({
-                currentComplaint: response.data,
+                currentComplaint: response.data.complaint,
                 isLoading: false
             });
         } catch (error: any) {
@@ -247,6 +262,84 @@ export const useComplaintStore = create<ComplaintStore>((set) => ({
             }));
         } catch (error: any) {
             const errorMessage = error.response?.data?.message || 'Failed to delete complaint';
+            set({ error: errorMessage, isLoading: false });
+            throw new Error(errorMessage);
+        }
+    },
+
+    toggleLike: async (complaintId: string, userId: string) => {
+        set({ isLoading: true, error: null });
+        const params = new URLSearchParams();
+        params.append("complaintId", complaintId);
+        params.append("userId", userId);
+        try {
+            set((state) => ({
+                userComplaints: state.userComplaints.map((complaint) =>
+                    complaint.complaintId === complaintId
+                        ? {
+                            ...complaint,
+                            likedByCurrentUser: !complaint.likedByCurrentUser,
+                            likesCount: complaint.likedByCurrentUser
+                                ? complaint.likesCount - 1
+                                : complaint.likesCount + 1,
+                        }
+                        : complaint
+                ),
+                allComplaints: state.allComplaints.map((complaint) =>
+                    complaint.complaintId === complaintId
+                        ? {
+                            ...complaint,
+                            likedByCurrentUser: !complaint.likedByCurrentUser,
+                            likesCount: complaint.likedByCurrentUser
+                                ? complaint.likesCount - 1
+                                : complaint.likesCount + 1,
+                        }
+                        : complaint
+                ),
+                currentComplaint: state.currentComplaint?.complaintId === complaintId
+                    ? { ...state.currentComplaint, likedByCurrentUser: !state.currentComplaint.likedByCurrentUser, likesCount: state.currentComplaint.likesCount + (state.currentComplaint.likedByCurrentUser ? -1 : 1) }
+                    : state.currentComplaint,
+                isLoading: false,
+            }));
+            await axiosInstance.put(`/complaints/toggle/like?${params.toString()}`);
+        } catch (error: any) {
+            const errorMessage = error.response?.data?.message || 'Failed to like complaint';
+            set({ error: errorMessage, isLoading: false });
+            throw new Error(errorMessage);
+        }
+    },
+
+    toggleSave: async (complaintId: string, userId: string) => {
+        set({ isLoading: true, error: null });
+        const params = new URLSearchParams();
+        params.append("complaintId", complaintId);
+        params.append("userId", userId);
+        try {
+            set((state) => ({
+                userComplaints: state.userComplaints.map((complaint) =>
+                    complaint.complaintId === complaintId
+                        ? {
+                            ...complaint,
+                            savedByCurrentUser: !complaint.savedByCurrentUser,
+                        }
+                        : complaint
+                ),
+                allComplaints: state.allComplaints.map((complaint) =>
+                    complaint.complaintId === complaintId
+                        ? {
+                            ...complaint,
+                            savedByCurrentUser: !complaint.savedByCurrentUser
+                        }
+                        : complaint
+                ),
+                currentComplaint: state.currentComplaint?.complaintId === complaintId
+                    ? { ...state.currentComplaint, savedByCurrentUser: !state.currentComplaint.savedByCurrentUser }
+                    : state.currentComplaint,
+                isLoading: false,
+            }));
+            await axiosInstance.put(`/complaints/toggle/save?${params.toString()}`);
+        } catch (error: any) {
+            const errorMessage = error.response?.data?.message || 'Failed to save complaint';
             set({ error: errorMessage, isLoading: false });
             throw new Error(errorMessage);
         }

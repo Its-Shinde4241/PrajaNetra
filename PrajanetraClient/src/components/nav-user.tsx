@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
 import { Button } from "./ui/button"
-import { BadgeCheck, Bell, CreditCard, LogOut, Sparkles } from "lucide-react"
+import { BadgeCheck, Bell, CreditCard, LogOut } from "lucide-react"
 import { useNavigate } from "react-router-dom"
 import { useUserStore } from "@/store/userStore"
 
@@ -47,7 +47,7 @@ export function NavUser({
                     className="p-0 cursor-pointer rounded-lg w-8 h-8"
                 >
                     <Avatar className="rounded-lg w-full h-full">
-                        <AvatarImage src={user.avatar} alt={user.name} />
+                        <AvatarImage src={user.avatar} alt={user.name} className="object-cover" />
                         <AvatarFallback className="rounded-lg w-full h-full text-sm font-semibold">
                             {getInitials(user.name)}
                         </AvatarFallback>
@@ -55,7 +55,7 @@ export function NavUser({
                 </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent
-                className=" min-w-56 rounded-lg"
+                className=" min-w-56 rounded-lg "
                 side="bottom"
                 align="end"
                 sideOffset={15}
@@ -63,7 +63,7 @@ export function NavUser({
                 <DropdownMenuLabel className="p-0 font-normal">
                     <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                         <Avatar className="h-8 w-8 rounded-lg">
-                            <AvatarImage src={user.avatar} alt={user.name} />
+                            <AvatarImage src={user.avatar} alt={user.name} className="object-cover" />
                             <AvatarFallback className="rounded-lg">
                                 {getInitials(user.name)}
                             </AvatarFallback>
@@ -76,18 +76,11 @@ export function NavUser({
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuGroup>
-                    <DropdownMenuItem>
-                        <Sparkles />
-                        Upgrade to Pro
-                    </DropdownMenuItem>
-                </DropdownMenuGroup>
-                <DropdownMenuSeparator />
-                <DropdownMenuGroup>
                     <DropdownMenuItem onClick={() => navigate("/profile")}>
                         <BadgeCheck />
                         Profile
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => navigate("/track")}>
+                    <DropdownMenuItem onClick={() => navigate("/my-complaints")}>
                         <CreditCard />
                         My Complaints
                     </DropdownMenuItem>
