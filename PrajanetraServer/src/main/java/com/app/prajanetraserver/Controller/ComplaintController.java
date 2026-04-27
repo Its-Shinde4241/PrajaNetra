@@ -4,7 +4,6 @@ import com.app.prajanetraserver.DTO.*;
 import com.app.prajanetraserver.Model.Complaint;
 import com.app.prajanetraserver.Model.MyUserDetails;
 import com.app.prajanetraserver.Service.ComplaintService;
-import com.app.prajanetraserver.Service.FileStorageService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -19,7 +18,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -28,14 +26,11 @@ import java.util.Map;
 public class ComplaintController {
 
     private final ComplaintService complaintService;
-    private final FileStorageService fileStorageService;
     private final ObjectMapper objectMapper;
 
     public ComplaintController(ComplaintService complaintService,
-                               FileStorageService fileStorageService,
                                ObjectMapper objectMapper) {
         this.complaintService = complaintService;
-        this.fileStorageService = fileStorageService;
         this.objectMapper = objectMapper;
     }
 
@@ -61,9 +56,7 @@ public class ComplaintController {
                 return ResponseEntity.badRequest().body(Map.of("message", "Description is required"));
             }
 
-            List<String> imageUrls = fileStorageService.storeFiles(images);
-
-            Complaint complaint = complaintService.createComplaint(request, imageUrls);
+            Complaint complaint = complaintService.createComplaint(request, images);
 
             Map<String, Object> response = new HashMap<>();
             response.put("message", "Complaint filed successfully");
@@ -78,7 +71,6 @@ public class ComplaintController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("message", "Failed to upload files: " + e.getMessage()));
         } catch (Exception e) {
-            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("message", "Failed to create complaint: " + e.getMessage()));
         }
@@ -152,7 +144,6 @@ public class ComplaintController {
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
-            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("message", "Failed to retrieve complaints: " + e.getMessage()));
         }
@@ -193,7 +184,6 @@ public class ComplaintController {
             complaintService.deleteComplaint(complaintId);
             return ResponseEntity.status(HttpStatus.OK).build();
         } catch (Exception e) {
-            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
@@ -204,7 +194,6 @@ public class ComplaintController {
             complaintService.toggleLike(complaintId, userId);
             return ResponseEntity.status(HttpStatus.OK).body(Map.of("message", "Complaint Liked Successfully"));
         } catch (Exception e) {
-            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "Complaint Liked Failed"));
         }
     }
@@ -215,7 +204,6 @@ public class ComplaintController {
             complaintService.toggleSave(complaintId, userId);
             return ResponseEntity.status(HttpStatus.OK).body(Map.of("message", "Complaint Saved Successfully"));
         } catch (Exception e) {
-            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "Complaint Save Failed"));
         }
     }

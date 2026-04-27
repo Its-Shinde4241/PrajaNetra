@@ -327,6 +327,7 @@ public class AdminService {
                 complaint.getDescription(),
                 complaint.getLikes(),
                 complaint.getImageUrls(),
+                complaint.isVerified(),
                 complaint.getStatus(),
                 complaint.getCreatedAt(),
                 complaint.getUpdatedAt()

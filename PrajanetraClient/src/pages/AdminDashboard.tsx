@@ -44,7 +44,7 @@ const AdminDashboard = () => {
                     getStatusStats(),
                     getRecentComplaints(20),
                 ]);
-            } catch (err) {
+            } catch {
                 toast.error("Failed to load dashboard data");
             }
         };

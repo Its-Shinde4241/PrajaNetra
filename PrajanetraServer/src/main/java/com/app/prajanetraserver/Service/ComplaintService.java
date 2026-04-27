@@ -13,7 +13,9 @@ import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -25,14 +27,35 @@ public class ComplaintService {
     private final ComplaintRepo complaintRepo;
     private final UserRepo userRepo;
     private final CommentRepo commentRepo;
+    private final FileStorageService fileStorageService;
+    private final GeminiComplaintVerificationService geminiComplaintVerificationService;
 
-    public ComplaintService(ComplaintRepo complaintRepo, UserRepo userRepo, CommentRepo commentRepo) {
+    public ComplaintService(ComplaintRepo complaintRepo,
+                            UserRepo userRepo,
+                            CommentRepo commentRepo,
+                            FileStorageService fileStorageService,
+                            GeminiComplaintVerificationService geminiComplaintVerificationService) {
         this.complaintRepo = complaintRepo;
         this.userRepo = userRepo;
         this.commentRepo = commentRepo;
+        this.fileStorageService = fileStorageService;
+        this.geminiComplaintVerificationService = geminiComplaintVerificationService;
     }
 
-    public Complaint createComplaint(CreateComplaintRequest request, List<String> imageUrls) {
+    public Complaint createComplaint(CreateComplaintRequest request, MultipartFile[] images) throws IOException {
+        GeminiComplaintVerificationService.VerifyAllImagesResult verifyAllResult = geminiComplaintVerificationService.verifyAll(
+                request.getCategory(),
+                request.getDescription(),
+                images
+        );
+
+        if (!verifyAllResult.isAllVerified()) {
+            throw new IllegalArgumentException(
+                    "Image verification failed: " + verifyAllResult.getMessage()
+            );
+        }
+
+        List<String> imageUrls = fileStorageService.storeFiles(images);
         String complaintId = generateComplaintId();
         System.out.println(imageUrls);
         Complaint complaint = new Complaint();
@@ -45,6 +68,7 @@ public class ComplaintService {
         complaint.setFormattedAddress(request.getFormattedAddress());
         complaint.setDescription(request.getDescription());
         complaint.setImageUrls(imageUrls);
+        complaint.setVerified(true);
         complaint.setStatus(ComplaintStatus.SUBMITTED);
         complaint.setCreatedAt(LocalDateTime.now());
         complaint.setUpdatedAt(LocalDateTime.now());
@@ -94,6 +118,7 @@ public class ComplaintService {
                 complaint.getDescription(),
                 complaint.getLikes(),
                 complaint.getImageUrls(),
+                complaint.isVerified(),
                 complaint.getStatus(),
                 complaint.getCreatedAt(),
                 complaint.getUpdatedAt()
@@ -132,6 +157,7 @@ public class ComplaintService {
                 complaint.getLongitude(),
                 complaint.getStatus(),
                 complaint.getImageUrls(),
+                complaint.isVerified(),
 
                 complaintUser.getUserId(),
                 complaintUser.getName(),

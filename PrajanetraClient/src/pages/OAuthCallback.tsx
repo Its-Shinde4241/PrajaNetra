@@ -25,13 +25,13 @@ export default function OAuthCallback() {
                 setUser(null as any, token);
 
                 const res = await axiosInstance.get("/auth/me");
-                console.log("OAuth /auth/me response:", res);
+                // console.log("OAuth /auth/me response:", res);
                 // backend returns: { authenticated: true, user: {...} }
                 if (!res.data?.authenticated) {
                     throw new Error("Unauthenticated");
                 }
 
-                console.log("OAuth login successful:", res.data.user);
+                // console.log("OAuth login successful:", res.data.user);
                 setUser(res.data.user, token);
                 navigate("/");
             } catch (err) {

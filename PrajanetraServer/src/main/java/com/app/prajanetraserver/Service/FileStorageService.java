@@ -49,7 +49,7 @@ public class FileStorageService {
             }
 
             String fileExtension = originalFilename.substring(originalFilename.lastIndexOf("."));
-            String uniqueFilename = UUID.randomUUID().toString() + fileExtension;
+            String uniqueFilename = UUID.randomUUID() + fileExtension;
 
             String publicUrl = uploadToSupabase(file, uniqueFilename);
             fileUrls.add(publicUrl);

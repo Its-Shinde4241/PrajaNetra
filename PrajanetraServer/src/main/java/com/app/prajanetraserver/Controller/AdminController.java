@@ -45,7 +45,6 @@ public class AdminController {
             return ResponseEntity.ok(Map.of("message", "ComplaintStatus changed fro complaint : " + request.getComplaintId()));
 
         } catch (Exception e) {
-            e.printStackTrace();
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
@@ -59,7 +58,6 @@ public class AdminController {
             response.put("message", "staff request approved  successfully");
             return ResponseEntity.ok().body(response);
         } catch (Exception e) {
-            e.printStackTrace();
             Map<String, Object> response = new HashMap<>();
             response.put("error", e.getMessage());
             return ResponseEntity.badRequest().body(response);

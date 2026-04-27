@@ -47,9 +47,9 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(exp -> exp
-                        .authenticationEntryPoint((req, res, ex) -> {
-                            res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                            res.getWriter().write("Unauthorized: Login required");
+                        .authenticationEntryPoint((request, response, authenticationException) -> {
+                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                            response.getWriter().write(authenticationException.getMessage() + " : Unauthorized access! Login First");
                         })
                 )
                 .oauth2Login(oauth ->

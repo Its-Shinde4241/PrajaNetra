@@ -67,6 +67,10 @@ public class Complaint {
 
     @Setter
     @Column(nullable = false)
+    private boolean verified = false;
+
+    @Setter
+    @Column(nullable = false)
     private LocalDateTime createdAt;
 
     @Setter

@@ -21,6 +21,7 @@ public class ComplaintResponse {
     private String description;
     private long likes;
     private List<String> imageUrls;
+    private boolean verified;
     private ComplaintStatus status;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

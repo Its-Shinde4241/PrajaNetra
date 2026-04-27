@@ -22,6 +22,7 @@ public class FeedResponse {
     private Double longitude;
     private ComplaintStatus status;
     private List<String> imageUrls;
+    private boolean verified;
 
     // User info
     private String userId;

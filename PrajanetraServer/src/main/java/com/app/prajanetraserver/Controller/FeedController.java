@@ -36,7 +36,6 @@ public class FeedController {
             Authentication authentication) {
 
 
-
         String currentUserId = extractUserId(authentication);
 
         log.info("Feed request: page={}, size={}, category={}, status={}, sortBy={}, user={}",
@@ -46,18 +45,11 @@ public class FeedController {
             Page<FeedResponse> feedPage = feedService.getFeed(page, size, category, status, sortBy, currentUserId);
 
 
-            Map<String, Object> response = new HashMap<>();
-            response.put("posts", feedPage.getContent());
-            response.put("currentPage", feedPage.getNumber());
-            response.put("totalPages", feedPage.getTotalPages());
-            response.put("totalItems", feedPage.getTotalElements());
-            response.put("hasNext", feedPage.hasNext());
-            response.put("hasPrevious", feedPage.hasPrevious());
+            Map<String, Object> response = tofeedPage(feedPage);
 
             return ResponseEntity.ok(response);
         } catch (Exception e) {
 
-            e.printStackTrace();
             return ResponseEntity.internalServerError().body(Map.of("error", e.getMessage()));
         }
     }
@@ -82,13 +74,7 @@ public class FeedController {
         String currentUserId = extractUserId(authentication);
         Page<FeedResponse> feedPage = feedService.getUserFeed(userId, page, size, currentUserId);
 
-        Map<String, Object> response = new HashMap<>();
-        response.put("posts", feedPage.getContent());
-        response.put("currentPage", feedPage.getNumber());
-        response.put("totalPages", feedPage.getTotalPages());
-        response.put("totalItems", feedPage.getTotalElements());
-        response.put("hasNext", feedPage.hasNext());
-        response.put("hasPrevious", feedPage.hasPrevious());
+        Map<String, Object> response = tofeedPage(feedPage);
 
         return ResponseEntity.ok(response);
     }
@@ -98,5 +84,16 @@ public class FeedController {
             return userDetails.getUser().getUserId();
         }
         return null;
+    }
+
+    public Map<String, Object> tofeedPage(Page<FeedResponse> feedPage) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("posts", feedPage.getContent());
+        response.put("currentPage", feedPage.getNumber());
+        response.put("totalPages", feedPage.getTotalPages());
+        response.put("totalItems", feedPage.getTotalElements());
+        response.put("hasNext", feedPage.hasNext());
+        response.put("hasPrevious", feedPage.hasPrevious());
+        return response;
     }
 }
